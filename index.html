@@ -233,6 +233,11 @@
             margin-bottom: 0.5rem;
         }
 
+        .video-card-info p {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
         /* Content Sections */
         .content-section {
             margin-bottom: 2.5rem;
@@ -611,7 +616,7 @@
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="logo">
-                <h1>🎬 Screenplay Bootcamp</h1>
+                <h1> Screenplay Bootcamp</h1>
                 <p>Automatización con Serenity + Cucumber</p>
             </div>
 
@@ -630,31 +635,22 @@
                     <button class="module-btn active" onclick="showModule(0)">
                         <div class="module-icon">0</div>
                         <div>
-                            <div style="font-weight: bold;">Nivel 0: El Despertar</div>
-                            <small>Contexto y Mentalidad</small>
+                            <div style="font-weight: bold;">Nivel 0-1: Gherkin</div>
+                            <small>Introducción y Sintaxis</small>
                         </div>
                     </button>
                 </li>
                 <li class="module-item">
                     <button class="module-btn" onclick="showModule(1)">
-                        <div class="module-icon">1</div>
+                        <div class="module-icon">2</div>
                         <div>
-                            <div style="font-weight: bold;">Nivel 1: Gherkin</div>
-                            <small>El Lenguaje del Negocio</small>
+                            <div style="font-weight: bold;">Nivel 2: Cucumber</div>
+                            <small>Framework y Step Definitions</small>
                         </div>
                     </button>
                 </li>
                 <li class="module-item">
                     <button class="module-btn" onclick="showModule(2)">
-                        <div class="module-icon">2</div>
-                        <div>
-                            <div style="font-weight: bold;">Nivel 2: Cucumber</div>
-                            <small>El Traductor</small>
-                        </div>
-                    </button>
-                </li>
-                <li class="module-item">
-                    <button class="module-btn" onclick="showModule(3)">
                         <div class="module-icon">3</div>
                         <div>
                             <div style="font-weight: bold;">Nivel 3: Screenplay</div>
@@ -663,16 +659,16 @@
                     </button>
                 </li>
                 <li class="module-item">
-                    <button class="module-btn" onclick="showModule(4)">
+                    <button class="module-btn" onclick="showModule(3)">
                         <div class="module-icon">4</div>
                         <div>
                             <div style="font-weight: bold;">Nivel 4: Serenity</div>
-                            <small>Reportes y Waits</small>
+                            <small>Reportes y Living Documentation</small>
                         </div>
                     </button>
                 </li>
                 <li class="module-item">
-                    <button class="module-btn" onclick="showModule(5)">
+                    <button class="module-btn" onclick="showModule(4)">
                         <div class="module-icon">★</div>
                         <div>
                             <div style="font-weight: bold;">Proyecto Final</div>
@@ -685,15 +681,15 @@
             <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 2px solid var(--light);">
                 <h4 style="margin-bottom: 1rem; color: var(--primary);">🏆 Tus Logros</h4>
                 <div id="badgesContainer">
-                    <span class="badge locked" id="badge-1"> Primeros Pasos</span>
+                    <span class="badge locked" id="badge-1">🎯 Primeros Pasos</span>
                     <span class="badge locked" id="badge-2">📝 Gherkin Master</span>
-                    <span class="badge locked" id="badge-3">🎬 Screenplay Pro</span>
-                    <span class="badge locked" id="badge-4">🚀 Automatizador</span>
+                    <span class="badge locked" id="badge-3"> Screenplay Pro</span>
+                    <span class="badge locked" id="badge-4"> Automatizador</span>
                 </div>
             </div>
 
             <div style="margin-top: 1.5rem; padding: 1rem; background: var(--light); border-radius: 10px;">
-                <h4 style="margin-bottom: 0.75rem; color: var(--primary);"> Escanea para acceder</h4>
+                <h4 style="margin-bottom: 0.75rem; color: var(--primary);">📱 Escanea para acceder</h4>
                 <div id="qrcode" style="text-align: center;"></div>
                 <p style="font-size: 0.85rem; color: var(--gray); margin-top: 0.5rem;">
                     Escanea este QR con tu celular
@@ -703,94 +699,26 @@
 
         <!-- Main Content -->
         <main class="main-content">
-            <!-- Module 0: Introduction -->
+            <!-- Module 0-1: Gherkin -->
             <div class="content-card active" id="module-0">
                 <div class="card-header">
-                    <h2> Nivel 0: El Despertar</h2>
-                    <p>Entendiendo la automatización desde cero</p>
+                    <h2>📚 Nivel 0-1: Gherkin - El Lenguaje del Negocio</h2>
+                    <p>Aprendiendo la sintaxis Given/When/Then</p>
                 </div>
 
-                <!-- Videos Reales de YouTube -->
-                <div class="video-grid">
-                    <div class="video-card">
-                        <iframe src="https://www.youtube.com/embed/8sEiFPrsGxE" allowfullscreen></iframe>
-                        <div class="video-card-info">
-                            <h4>¿Qué es BDD?</h4>
-                            <p>Introducción al Behavior Driven Development</p>
-                        </div>
-                    </div>
-                    <div class="video-card">
-                        <iframe src="https://www.youtube.com/embed/My67EeFUFN8" allowfullscreen></iframe>
-                        <div class="video-card-info">
-                            <h4>Automatización de Pruebas</h4>
-                            <p>Conceptos fundamentales</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="content-section">
-                    <h3>📚 ¿Qué es la Automatización de Pruebas?</h3>
-                    <p>
-                        La automatización no es reemplazar testers, es <strong>potenciarlos</strong>. 
-                        Imagina que tienes que revisar 1000 formularios todos los días. ¿Lo harías a mano? 
-                        ¡Claro que no! Para eso están las máquinas.
-                    </p>
-                    
-                    <div class="highlight-box">
-                        <strong> La Verdad Sincera:</strong> Automatizar no es más rápido la primera vez, 
-                        pero es infinitamente más rápido la centésima vez.
-                    </div>
-
-                    <h3>🎮 Dinámica: Mitos vs Realidad</h3>
-                    <p>Responde verdadero o falso a las siguientes afirmaciones:</p>
-                    
-                    <div class="quiz-container">
-                        <div class="quiz-question">1. La automatización encuentra más bugs que un tester manual</div>
-                        <div class="quiz-options">
-                            <div class="quiz-option" onclick="selectOption(this, 0, 0, false)">Verdadero</div>
-                            <div class="quiz-option" onclick="selectOption(this, 0, 0, true)">Falso</div>
-                        </div>
-                        <div class="feedback" id="feedback-0-0"></div>
-                    </div>
-
-                    <div class="quiz-container">
-                        <div class="quiz-question">2. Si automatizas, ya no necesitas testers manuales</div>
-                        <div class="quiz-options">
-                            <div class="quiz-option" onclick="selectOption(this, 0, 1, false)">Verdadero</div>
-                            <div class="quiz-option" onclick="selectOption(this, 0, 1, true)">Falso</div>
-                        </div>
-                        <div class="feedback" id="feedback-0-1"></div>
-                    </div>
-
-                    <div class="quiz-container">
-                        <div class="quiz-question">3. La automatización es solo para aplicaciones web</div>
-                        <div class="quiz-options">
-                            <div class="quiz-option" onclick="selectOption(this, 0, 2, false)">Verdadero</div>
-                            <div class="quiz-option" onclick="selectOption(this, 0, 2, true)">Falso</div>
-                        </div>
-                        <div class="feedback" id="feedback-0-2"></div>
-                    </div>
-
-                    <div class="nav-buttons">
-                        <button class="btn btn-primary" onclick="nextModule()">
-                            Siguiente Nivel →
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Module 1: Gherkin -->
-            <div class="content-card" id="module-1">
-                <div class="card-header">
-                    <h2> Nivel 1: Gherkin - El Lenguaje del Negocio</h2>
-                    <p>Aprendiendo a hablar como el negocio</p>
-                </div>
-
+                <!-- Video Real: LEARN GHERKIN - THE PRIMARY KEY WORDS -->
                 <div class="video-container">
-                    <iframe src="https://www.youtube.com/embed/CTgMXzPShRw" allowfullscreen></iframe>
+                    <iframe src="https://www.youtube.com/embed/REEMPLAZA_CON_ID_GHERKIN" allowfullscreen></iframe>
                 </div>
 
                 <div class="content-section">
+                    <h3>🎥 Video Recomendado</h3>
+                    <p><strong>"LEARN GHERKIN - THE PRIMARY KEY WORDS"</strong> - Explicación clara de Given/When/Then y la sintaxis básica de Gherkin.</p>
+
+                    <div class="highlight-box">
+                        <strong>💡 La Verdad Sincera:</strong> Gherkin no es para que el programador se sienta bien. Es para que el Product Owner, el QA y el Dev lean el mismo archivo y no haya malentendidos.
+                    </div>
+
                     <h3>🌟 Estructura Gherkin</h3>
                     <p>Gherkin usa palabras clave simples para describir el comportamiento:</p>
                     
@@ -830,18 +758,15 @@ Scenario: Usuario agrega producto al carrito exitosamente
                     <div class="quiz-container">
                         <div class="quiz-question">¿Cuál es la palabra clave que define el contexto inicial?</div>
                         <div class="quiz-options">
-                            <div class="quiz-option" onclick="selectOption(this, 1, 0, false)">When</div>
-                            <div class="quiz-option" onclick="selectOption(this, 1, 0, false)">Then</div>
-                            <div class="quiz-option" onclick="selectOption(this, 1, 0, true)">Given</div>
-                            <div class="quiz-option" onclick="selectOption(this, 1, 0, false)">And</div>
+                            <div class="quiz-option" onclick="selectOption(this, 0, 0, false)">When</div>
+                            <div class="quiz-option" onclick="selectOption(this, 0, 0, false)">Then</div>
+                            <div class="quiz-option" onclick="selectOption(this, 0, 0, true)">Given</div>
+                            <div class="quiz-option" onclick="selectOption(this, 0, 0, false)">And</div>
                         </div>
-                        <div class="feedback" id="feedback-1-0"></div>
+                        <div class="feedback" id="feedback-0-0"></div>
                     </div>
 
                     <div class="nav-buttons">
-                        <button class="btn btn-primary" onclick="prevModule()">
-                            ← Nivel Anterior
-                        </button>
                         <button class="btn btn-primary" onclick="nextModule()">
                             Siguiente Nivel →
                         </button>
@@ -850,18 +775,40 @@ Scenario: Usuario agrega producto al carrito exitosamente
             </div>
 
             <!-- Module 2: Cucumber -->
-            <div class="content-card" id="module-2">
+            <div class="content-card" id="module-1">
                 <div class="card-header">
-                    <h2>🥒 Nivel 2: Cucumber - El Traductor</h2>
-                    <p>Conectando Gherkin con código</p>
+                    <h2>🥒 Nivel 2: Cucumber - El Framework</h2>
+                    <p>Conectando Gherkin con código Java</p>
                 </div>
 
-                <div class="video-container">
-                    <iframe src="https://www.youtube.com/embed/hKLHbBjwKWE" allowfullscreen></iframe>
+                <!-- Videos Reales: Serie de Raghav Pal y Curso Completo -->
+                <div class="video-grid">
+                    <div class="video-card">
+                        <iframe src="https://www.youtube.com/embed/REEMPLAZA_CON_ID_RAGHAV" allowfullscreen></iframe>
+                        <div class="video-card-info">
+                            <h4>Serie: Selenium Cucumber Java BDD Framework</h4>
+                            <p>Por Raghav Pal (Automation Step by Step) - Video 1: Setup</p>
+                        </div>
+                    </div>
+                    <div class="video-card">
+                        <iframe src="https://www.youtube.com/embed/REEMPLAZA_CON_ID_CURSO_COMPLETO" allowfullscreen></iframe>
+                        <div class="video-card-info">
+                            <h4>Learn Cucumber BDD for Beginners - Full Course</h4>
+                            <p>Curso completo en un solo video</p>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="content-section">
-                    <h3> ¿Cómo funciona Cucumber?</h3>
+                    <h3>🎥 Videos Recomendados</h3>
+                    <p><strong>1. Serie de Raghav Pal:</strong> "Selenium Cucumber Java BDD Framework" - Empieza con el Video 1 (Setup) y continúa con First Test, Login Test, etc. Es una playlist completa.</p>
+                    <p><strong>2. Curso Completo:</strong> "Learn Cucumber BDD for Beginners - Full Course" - Todo en un solo video, ideal para entender el panorama completo.</p>
+
+                    <div class="highlight-box">
+                        <strong>💡 Nota:</strong> El canal de Mukesh Otwani también tiene una playlist dedicada de Cucumber BDD con +50 videos si quieres profundizar más.
+                    </div>
+
+                    <h3>🔧 ¿Cómo funciona Cucumber?</h3>
                     <p>Cucumber lee tus archivos .feature y los conecta con código Java:</p>
 
                     <div class="code-block">
@@ -904,12 +851,12 @@ public void deboVerDashboard() {
                     <div class="quiz-container">
                         <div class="quiz-question">¿Qué anotación usas para un paso "Given"?</div>
                         <div class="quiz-options">
-                            <div class="quiz-option" onclick="selectOption(this, 2, 0, false)">@When</div>
-                            <div class="quiz-option" onclick="selectOption(this, 2, 0, true)">@Given</div>
-                            <div class="quiz-option" onclick="selectOption(this, 2, 0, false)">@Then</div>
-                            <div class="quiz-option" onclick="selectOption(this, 2, 0, false)">@Step</div>
+                            <div class="quiz-option" onclick="selectOption(this, 1, 0, false)">@When</div>
+                            <div class="quiz-option" onclick="selectOption(this, 1, 0, true)">@Given</div>
+                            <div class="quiz-option" onclick="selectOption(this, 1, 0, false)">@Then</div>
+                            <div class="quiz-option" onclick="selectOption(this, 1, 0, false)">@Step</div>
                         </div>
-                        <div class="feedback" id="feedback-2-0"></div>
+                        <div class="feedback" id="feedback-1-0"></div>
                     </div>
 
                     <div class="nav-buttons">
@@ -924,18 +871,26 @@ public void deboVerDashboard() {
             </div>
 
             <!-- Module 3: Screenplay -->
-            <div class="content-card" id="module-3">
+            <div class="content-card" id="module-2">
                 <div class="card-header">
                     <h2>🎬 Nivel 3: Screenplay - El Patrón Dorado</h2>
                     <p>Actores, Tasks y Questions</p>
                 </div>
 
+                <!-- Video Real: John Ferguson Smart - Introducing Screenplay -->
                 <div class="video-container">
-                    <iframe src="https://www.youtube.com/embed/My67EeFUFN8" allowfullscreen></iframe>
+                    <iframe src="https://www.youtube.com/embed/REEMPLAZA_CON_ID_SCREENPLAY" allowfullscreen></iframe>
                 </div>
 
                 <div class="content-section">
-                    <h3> Los 4 Pilares de Screenplay</h3>
+                    <h3>🎥 Video Recomendado</h3>
+                    <p><strong>"Serenity BDD Tutorial #2 - Introducing Screenplay"</strong> por John Ferguson Smart (creador de Serenity BDD). Refactoriza un test web usando Screenplay y compara con Page Object.</p>
+
+                    <div class="highlight-box">
+                        <strong>💡 Nota:</strong> Este es el video #2 de la serie. El video #1 (login test básico sin Screenplay) también existe en su canal si quieres ver el "antes y después" completo.
+                    </div>
+
+                    <h3>🎭 Los 4 Pilares de Screenplay</h3>
                     
                     <div class="challenge-grid">
                         <div class="challenge-card">
@@ -1002,12 +957,12 @@ public void deboVerDashboard() {
                     <div class="quiz-container">
                         <div class="quiz-question">¿Qué método debe implementar una Task?</div>
                         <div class="quiz-options">
-                            <div class="quiz-option" onclick="selectOption(this, 3, 0, false)">execute()</div>
-                            <div class="quiz-option" onclick="selectOption(this, 3, 0, true)">performAs()</div>
-                            <div class="quiz-option" onclick="selectOption(this, 3, 0, false)">run()</div>
-                            <div class="quiz-option" onclick="selectOption(this, 3, 0, false)">act()</div>
+                            <div class="quiz-option" onclick="selectOption(this, 2, 0, false)">execute()</div>
+                            <div class="quiz-option" onclick="selectOption(this, 2, 0, true)">performAs()</div>
+                            <div class="quiz-option" onclick="selectOption(this, 2, 0, false)">run()</div>
+                            <div class="quiz-option" onclick="selectOption(this, 2, 0, false)">act()</div>
                         </div>
-                        <div class="feedback" id="feedback-3-0"></div>
+                        <div class="feedback" id="feedback-2-0"></div>
                     </div>
 
                     <div class="nav-buttons">
@@ -1022,24 +977,28 @@ public void deboVerDashboard() {
             </div>
 
             <!-- Module 4: Serenity -->
-            <div class="content-card" id="module-4">
+            <div class="content-card" id="module-3">
                 <div class="card-header">
-                    <h2>🎥 Nivel 4: Serenity BDD</h2>
-                    <p>Reportes profesionales y Waits inteligentes</p>
+                    <h2>🎥 Nivel 4: Serenity BDD - Reportes</h2>
+                    <p>De especificaciones ejecutables a living documentation</p>
                 </div>
 
+                <!-- Video Real: Alex Soto - Serenity BDD Living Documentation -->
                 <div class="video-container">
-                    <iframe src="https://www.youtube.com/embed/8sEiFPrsGxE" allowfullscreen></iframe>
+                    <iframe src="https://www.youtube.com/embed/REEMPLAZA_CON_ID_SERENITY" allowfullscreen></iframe>
                 </div>
 
                 <div class="content-section">
-                    <h3>📸 Los Reportes de Serenity</h3>
-                    <p>Serenity genera reportes automáticos con screenshots, HTML y trazabilidad completa.</p>
+                    <h3>🎥 Video Recomendado</h3>
+                    <p><strong>"Serenity BDD - from executable specifications to living documentation"</strong> por Alex Soto (charla de Devoxx) - 28 minutos, cubre justo los reportes y el dashboard.</p>
 
                     <div class="highlight-box warning">
                         <strong>⚠️ Prohibido:</strong> Usar Thread.sleep() en tus tests. 
                         Es como poner una venda en los ojos del test.
                     </div>
+
+                    <h3> Los Reportes de Serenity</h3>
+                    <p>Serenity genera reportes automáticos con screenshots, HTML y trazabilidad completa. No solo reportan resultados, sino que documentan cómo se prueban las features.</p>
 
                     <h3>⏱️ Waits Inteligentes</h3>
 
@@ -1085,12 +1044,12 @@ public void testLogin() {
                     <div class="quiz-container">
                         <div class="quiz-question">¿Cuál es la forma correcta de esperar un elemento?</div>
                         <div class="quiz-options">
-                            <div class="quiz-option" onclick="selectOption(this, 4, 0, false)">Thread.sleep(5000)</div>
-                            <div class="quiz-option" onclick="selectOption(this, 4, 0, true)">WaitUntil.the(element, isClickable())</div>
-                            <div class="quiz-option" onclick="selectOption(this, 4, 0, false)">waitForElement()</div>
-                            <div class="quiz-option" onclick="selectOption(this, 4, 0, false)">sleep(5)</div>
+                            <div class="quiz-option" onclick="selectOption(this, 3, 0, false)">Thread.sleep(5000)</div>
+                            <div class="quiz-option" onclick="selectOption(this, 3, 0, true)">WaitUntil.the(element, isClickable())</div>
+                            <div class="quiz-option" onclick="selectOption(this, 3, 0, false)">waitForElement()</div>
+                            <div class="quiz-option" onclick="selectOption(this, 3, 0, false)">sleep(5)</div>
                         </div>
-                        <div class="feedback" id="feedback-4-0"></div>
+                        <div class="feedback" id="feedback-3-0"></div>
                     </div>
 
                     <div class="nav-buttons">
@@ -1105,7 +1064,7 @@ public void testLogin() {
             </div>
 
             <!-- Module 5: Final Project -->
-            <div class="content-card" id="module-5">
+            <div class="content-card" id="module-4">
                 <div class="card-header">
                     <h2>🏆 Proyecto Final</h2>
                     <p>Aplicando todo lo aprendido</p>
@@ -1159,7 +1118,7 @@ public void testLogin() {
                     </div>
 
                     <div class="highlight-box">
-                        <strong> Entrega:</strong> Sube tu código a GitHub y comparte el reporte de Serenity generado.
+                        <strong>📤 Entrega:</strong> Sube tu código a GitHub y comparte el reporte de Serenity generado.
                     </div>
 
                     <h3>📝 Tu Solución</h3>
@@ -1189,7 +1148,7 @@ public void testLogin() {
                     </div>
 
                     <div class="exercise-container">
-                        <div class="exercise-title"> Step Definitions y Tasks:</div>
+                        <div class="exercise-title">💻 Step Definitions y Tasks:</div>
                         <textarea class="code-input" id="finalCode" placeholder="// Tu implementación completa aquí
 // Incluye:
 // - Step Definitions con anotaciones @Given, @When, @Then
@@ -1219,12 +1178,12 @@ public void buscaProducto(String producto) {
                     <div class="highlight-box success" id="completionMessage" style="display: none;">
                         <h3>🎉 ¡Felicitaciones!</h3>
                         <p>Has completado el Bootcamp de Automatización con Screenplay + Serenity</p>
-                        <p style="margin-top: 1rem;"><strong> Desbloqueaste todas las insignias:</strong></p>
+                        <p style="margin-top: 1rem;"><strong>🏆 Desbloqueaste todas las insignias:</strong></p>
                         <div style="margin-top: 1rem;">
                             <span class="badge unlocked">🎯 Primeros Pasos</span>
-                            <span class="badge unlocked">📝 Gherkin Master</span>
-                            <span class="badge unlocked"> Screenplay Pro</span>
-                            <span class="badge unlocked">🚀 Automatizador</span>
+                            <span class="badge unlocked"> Gherkin Master</span>
+                            <span class="badge unlocked">🎬 Screenplay Pro</span>
+                            <span class="badge unlocked"> Automatizador</span>
                         </div>
                     </div>
 
@@ -1247,7 +1206,7 @@ public void buscaProducto(String producto) {
     <script>
         // State Management
         let currentModule = 0;
-        const totalModules = 6;
+        const totalModules = 5;
         let completedModules = new Set();
         let userProgress = {
             quizzes: {},
@@ -1286,7 +1245,6 @@ public void buscaProducto(String producto) {
             currentModule = index;
             updateProgress();
             
-            // Regenerate QR for current module
             setTimeout(generateQRCode, 100);
         }
 
@@ -1315,8 +1273,7 @@ public void buscaProducto(String producto) {
                 feedback.className = 'feedback success show';
                 
                 const correctMessages = [
-                    '✅ ¡Correcto! La automatización no reemplaza testers, los potencia.',
-                    '✅ ¡Exacto! Given establece el contexto inicial del escenario.',
+                    '✅ ¡Correcto! Given establece el contexto inicial del escenario.',
                     '✅ ¡Bien! @Given es la anotación para pasos de contexto.',
                     '✅ ¡Perfecto! performAs() es el método que implementa una Task.',
                     '✅ ¡Correcto! WaitUntil es la forma inteligente de esperar elementos.'
@@ -1329,10 +1286,9 @@ public void buscaProducto(String producto) {
                 feedback.className = 'feedback error show';
                 
                 const errorMessages = [
-                    ' Incorrecto. La automatización ejecuta pruebas, pero el criterio humano encuentra bugs.',
                     '❌ No. Given es el contexto, When es la acción.',
                     '❌ No. @Given es para el contexto inicial.',
-                    '❌ No. El método es performAs(T actor).',
+                    ' No. El método es performAs(T actor).',
                     '❌ Thread.sleep() es una mala práctica. Usa WaitUntil.'
                 ];
                 
@@ -1388,7 +1344,7 @@ public void buscaProducto(String producto) {
                 completeExercise('screenplay');
             } else {
                 feedback.className = 'feedback error show';
-                feedback.innerHTML = '❌ Recuerda: Una Task debe implementar performAs() y usar actor.attemptsTo() con Enter.theValue() y Click.on()';
+                feedback.innerHTML = ' Recuerda: Una Task debe implementar performAs() y usar actor.attemptsTo() con Enter.theValue() y Click.on()';
             }
         }
 
@@ -1425,14 +1381,14 @@ public void buscaProducto(String producto) {
             if (feature.length > 100 && code.length > 200) {
                 feedback.className = 'feedback success show';
                 feedback.innerHTML = `
-                     ¡Felicitaciones! Has completado el bootcamp.<br>
-                    📧 Tu proyecto ha sido guardado. Ahora puedes:<br>
+                    🎉 ¡Felicitaciones! Has completado el bootcamp.<br>
+                     Tu proyecto ha sido guardado. Ahora puedes:<br>
                     &nbsp;&nbsp;1. Descargar el código<br>
                     &nbsp;&nbsp;2. Compartir el link con tu instructor<br>
                     &nbsp;&nbsp;3. Generar el reporte de Serenity<br>
                     🏆 Desbloqueaste la insignia: "Automatizador Screenplay"
                 `;
-                completedModules.add(5);
+                completedModules.add(4);
                 updateProgress();
                 unlockBadge('badge-4');
                 completionMessage.style.display = 'block';
@@ -1445,8 +1401,8 @@ public void buscaProducto(String producto) {
 
         // Progress Tracking
         function updateProgress() {
-            const totalQuizzes = 8;
-            const totalExercises = 5;
+            const totalQuizzes = 4;
+            const totalExercises = 4;
             let completedQuizzes = 0;
             let completedExercises = 0;
             
@@ -1486,8 +1442,7 @@ public void buscaProducto(String producto) {
                 badge.classList.remove('locked');
                 badge.classList.add('unlocked');
                 
-                // Show notification
-                showNotification(` ¡Insignia desbloqueada! ${badge.textContent}`);
+                showNotification(`🏆 ¡Insignia desbloqueada! ${badge.textContent}`);
             }
         }
 
@@ -1555,7 +1510,6 @@ public void buscaProducto(String producto) {
             updateProgress();
         };
 
-        // Update QR when URL changes (for GitHub Pages)
         window.addEventListener('popstate', generateQRCode);
     </script>
 </body>
