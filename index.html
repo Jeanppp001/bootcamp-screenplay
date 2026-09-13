@@ -1,0 +1,1285 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bootcamp Interactivo: Automatización con Screenplay + Serenity</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #64748b;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--dark);
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 300px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            overflow-y: auto;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .logo h1 {
+            color: var(--primary);
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .logo p {
+            color: var(--gray);
+            font-size: 0.85rem;
+        }
+
+        .progress-container {
+            background: var(--light);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+        }
+
+        .progress-bar {
+            height: 10px;
+            background: #e2e8f0;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .module-list {
+            list-style: none;
+        }
+
+        .module-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .module-btn {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            background: var(--light);
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.95rem;
+        }
+
+        .module-btn:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .module-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .module-btn.completed {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .module-icon {
+            width: 30px;
+            height: 30px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .content-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .content-card.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card-header {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--light);
+        }
+
+        .card-header h2 {
+            color: var(--primary);
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-header p {
+            color: var(--gray);
+        }
+
+        /* Video Section */
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            background: var(--dark);
+        }
+
+        .video-container iframe,
+        .video-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .video-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .video-placeholder:hover {
+            background: rgba(99, 102, 241, 0.8);
+        }
+
+        .play-button {
+            width: 80px;
+            height: 80px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            transition: transform 0.3s;
+        }
+
+        .video-placeholder:hover .play-button {
+            transform: scale(1.1);
+        }
+
+        /* Content Sections */
+        .content-section {
+            margin-bottom: 2rem;
+        }
+
+        .content-section h3 {
+            color: var(--dark);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .content-section p, .content-section ul {
+            line-height: 1.8;
+            color: var(--gray);
+            margin-bottom: 1rem;
+        }
+
+        .content-section ul {
+            padding-left: 1.5rem;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 1.5rem 0;
+        }
+
+        .highlight-box.warning {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .highlight-box.success {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        /* Interactive Exercises */
+        .exercise-container {
+            background: var(--light);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-left: 4px solid var(--primary);
+        }
+
+        .exercise-title {
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .code-input {
+            width: 100%;
+            min-height: 150px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            resize: vertical;
+            background: #1e293b;
+            color: #e2e8f0;
+            margin-bottom: 1rem;
+        }
+
+        .code-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-success {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .feedback {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .feedback.show {
+            display: block;
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .feedback.success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid var(--secondary);
+        }
+
+        .feedback.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid var(--danger);
+        }
+
+        /* Quiz Section */
+        .quiz-container {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .quiz-question {
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: var(--dark);
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .quiz-option {
+            padding: 1rem;
+            background: var(--light);
+            border: 2px solid transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .quiz-option:hover {
+            border-color: var(--primary);
+            background: #eef2ff;
+        }
+
+        .quiz-option.selected {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: white;
+        }
+
+        .quiz-option.correct {
+            border-color: var(--secondary);
+            background: #d1fae5;
+        }
+
+        .quiz-option.incorrect {
+            border-color: var(--danger);
+            background: #fee2e2;
+        }
+
+        /* Challenge Cards */
+        .challenge-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .challenge-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .challenge-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .challenge-card h4 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .challenge-card .difficulty {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .difficulty.easy { background: #d1fae5; color: #065f46; }
+        .difficulty.medium { background: #fef3c7; color: #92400e; }
+        .difficulty.hard { background: #fee2e2; color: #991b1b; }
+
+        /* Navigation Buttons */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 2px solid var(--light);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                max-height: 300px;
+            }
+        }
+
+        /* Loading Animation */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Badge System */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin: 0.5rem;
+        }
+
+        .badge.locked {
+            background: #cbd5e1;
+            cursor: not-allowed;
+        }
+
+        /* Syntax Highlighting Simulation */
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .code-block .keyword { color: #c084fc; }
+        .code-block .string { color: #86efac; }
+        .code-block .comment { color: #64748b; }
+        .code-block .function { color: #60a5fa; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <h1> Screenplay Bootcamp</h1>
+                <p>Automatización con Serenity + Cucumber</p>
+            </div>
+
+            <div class="progress-container">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span>Progreso General</span>
+                    <span id="progressText">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressBar"></div>
+                </div>
+            </div>
+
+            <ul class="module-list">
+                <li class="module-item">
+                    <button class="module-btn active" onclick="showModule(0)">
+                        <div class="module-icon">0</div>
+                        <div>
+                            <div style="font-weight: bold;">Nivel 0: El Despertar</div>
+                            <small>Contexto y Mentalidad</small>
+                        </div>
+                    </button>
+                </li>
+                <li class="module-item">
+                    <button class="module-btn" onclick="showModule(1)">
+                        <div class="module-icon">1</div>
+                        <div>
+                            <div style="font-weight: bold;">Nivel 1: Gherkin</div>
+                            <small>El Lenguaje del Negocio</small>
+                        </div>
+                    </button>
+                </li>
+                <li class="module-item">
+                    <button class="module-btn" onclick="showModule(2)">
+                        <div class="module-icon">2</div>
+                        <div>
+                            <div style="font-weight: bold;">Nivel 2: Cucumber</div>
+                            <small>El Traductor</small>
+                        </div>
+                    </button>
+                </li>
+                <li class="module-item">
+                    <button class="module-btn" onclick="showModule(3)">
+                        <div class="module-icon">3</div>
+                        <div>
+                            <div style="font-weight: bold;">Nivel 3: Screenplay</div>
+                            <small>El Patrón Dorado</small>
+                        </div>
+                    </button>
+                </li>
+                <li class="module-item">
+                    <button class="module-btn" onclick="showModule(4)">
+                        <div class="module-icon">4</div>
+                        <div>
+                            <div style="font-weight: bold;">Nivel 4: Serenity</div>
+                            <small>Reportes y Waits</small>
+                        </div>
+                    </button>
+                </li>
+                <li class="module-item">
+                    <button class="module-btn" onclick="showModule(5)">
+                        <div class="module-icon"></div>
+                        <div>
+                            <div style="font-weight: bold;">Proyecto Final</div>
+                            <small>Aplicación Real</small>
+                        </div>
+                    </button>
+                </li>
+            </ul>
+
+            <div style="margin-top: 2rem; padding-top: 1rem; border-top: 2px solid var(--light);">
+                <h4 style="margin-bottom: 1rem; color: var(--primary);">🏆 Tus Logros</h4>
+                <div id="badgesContainer">
+                    <span class="badge locked">🎯 Primeros Pasos</span>
+                    <span class="badge locked"> Gherkin Master</span>
+                    <span class="badge locked">🎬 Screenplay Pro</span>
+                    <span class="badge locked">🚀 Automatizador</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Module 0: Introduction -->
+            <div class="content-card active" id="module-0">
+                <div class="card-header">
+                    <h2>🎯 Nivel 0: El Despertar</h2>
+                    <p>Entendiendo la automatización desde cero</p>
+                </div>
+
+                <div class="video-container">
+                    <div class="video-placeholder" onclick="playVideo(0)">
+                        <div class="play-button">▶</div>
+                        <h3>Introducción a la Automatización</h3>
+                        <p>Haz clic para reproducir</p>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <h3>📚 ¿Qué es la Automatización de Pruebas?</h3>
+                    <p>
+                        La automatización no es reemplazar testers, es <strong>potenciarlos</strong>. 
+                        Imagina que tienes que revisar 1000 formularios todos los días. ¿Lo harías a mano? 
+                        ¡Claro que no! Para eso están las máquinas.
+                    </p>
+                    
+                    <div class="highlight-box">
+                        <strong>💡 La Verdad Sincera:</strong> Automatizar no es más rápido la primera vez, 
+                        pero es infinitamente más rápido la centésima vez.
+                    </div>
+
+                    <h3>🎮 Dinámica: Mitos vs Realidad</h3>
+                    <p>Responde verdadero o falso a las siguientes afirmaciones:</p>
+                    
+                    <div class="quiz-container">
+                        <div class="quiz-question">1. La automatización encuentra más bugs que un tester manual</div>
+                        <div class="quiz-options">
+                            <div class="quiz-option" onclick="selectOption(this, 0, 0, false)">Verdadero</div>
+                            <div class="quiz-option" onclick="selectOption(this, 0, 0, true)">Falso</div>
+                        </div>
+                        <div class="feedback" id="feedback-0-0"></div>
+                    </div>
+
+                    <div class="quiz-container">
+                        <div class="quiz-question">2. Si automatizas, ya no necesitas testers manuales</div>
+                        <div class="quiz-options">
+                            <div class="quiz-option" onclick="selectOption(this, 0, 1, false)">Verdadero</div>
+                            <div class="quiz-option" onclick="selectOption(this, 0, 1, true)">Falso</div>
+                        </div>
+                        <div class="feedback" id="feedback-0-1"></div>
+                    </div>
+
+                    <div class="nav-buttons">
+                        <button class="btn btn-primary" onclick="nextModule()">
+                            Siguiente Nivel →
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Module 1: Gherkin -->
+            <div class="content-card" id="module-1">
+                <div class="card-header">
+                    <h2> Nivel 1: Gherkin - El Lenguaje del Negocio</h2>
+                    <p>Aprendiendo a hablar como el negocio</p>
+                </div>
+
+                <div class="video-container">
+                    <div class="video-placeholder" onclick="playVideo(1)">
+                        <div class="play-button">▶</div>
+                        <h3>Escribiendo Escenarios Gherkin</h3>
+                        <p>Haz clic para reproducir</p>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <h3>🌟 Estructura Gherkin</h3>
+                    <p>Gherkin usa palabras clave simples para describir el comportamiento:</p>
+                    
+                    <div class="code-block">
+<span class="comment"># Ejemplo de escenario Gherkin</span>
+<span class="keyword">Feature:</span> Login de usuarios
+  
+  <span class="keyword">Scenario:</span> Usuario inicia sesión correctamente
+    <span class="keyword">Given</span> que estoy en la página de login
+    <span class="keyword">When</span> ingreso mis credenciales válidas
+    <span class="keyword">Then</span> debo ver el dashboard principal
+                    </div>
+
+                    <div class="highlight-box success">
+                        <strong>✅ Regla de Oro:</strong> 
+                        Given = Contexto | When = Acción | Then = Resultado Esperado
+                    </div>
+
+                    <h3>🎮 Ejercicio Práctico</h3>
+                    <p>Escribe un escenario Gherkin para: "Un usuario agrega un producto al carrito"</p>
+
+                    <div class="exercise-container">
+                        <div class="exercise-title">✍️ Tu Escenario:</div>
+                        <textarea class="code-input" id="gherkinExercise" placeholder="Feature: Agregar producto al carrito
+
+Scenario: ...
+  Given ...
+  When ...
+  Then ..."></textarea>
+                        <button class="btn btn-primary" onclick="checkGherkin()">
+                            Verificar Escenario
+                        </button>
+                        <div class="feedback" id="gherkinFeedback"></div>
+                    </div>
+
+                    <div class="nav-buttons">
+                        <button class="btn btn-primary" onclick="prevModule()">
+                            ← Nivel Anterior
+                        </button>
+                        <button class="btn btn-primary" onclick="nextModule()">
+                            Siguiente Nivel →
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Module 2: Cucumber -->
+            <div class="content-card" id="module-2">
+                <div class="card-header">
+                    <h2>🥒 Nivel 2: Cucumber - El Traductor</h2>
+                    <p>Conectando Gherkin con código</p>
+                </div>
+
+                <div class="video-container">
+                    <div class="video-placeholder" onclick="playVideo(2)">
+                        <div class="play-button">▶</div>
+                        <h3>Step Definitions con Cucumber</h3>
+                        <p>Haz clic para reproducir</p>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <h3>🔧 ¿Cómo funciona Cucumber?</h3>
+                    <p>Cucumber lee tus archivos .feature y los conecta con código Java:</p>
+
+                    <div class="code-block">
+<span class="comment">// Step Definition en Java</span>
+<span class="keyword">@Given</span>(<span class="string">"que estoy en la página de login"</span>)
+<span class="keyword">public void</span> <span class="function">estoyEnLogin</span>() {
+    actor.attemptsTo(Open.browserOn().the(LoginPage.class));
+}
+
+<span class="keyword">@When</span>(<span class="string">"ingreso mis credenciales válidas"</span>)
+<span class="keyword">public void</span> <span class="function">ingresoCredenciales</span>() {
+    actor.attemptsTo(LoginUI.withCredentials(user, pass));
+}
+                    </div>
+
+                    <h3>🎮 Reto: Completa el Step Definition</h3>
+                    <p>Escribe el step definition para: "debo ver el dashboard principal"</p>
+
+                    <div class="exercise-container">
+                        <div class="exercise-title">💻 Tu Código:</div>
+                        <textarea class="code-input" id="cucumberExercise" placeholder="@Then(&quot;debo ver el dashboard principal&quot;)
+public void deboVerDashboard() {
+    // Tu código aquí
+    
+}"></textarea>
+                        <button class="btn btn-primary" onclick="checkCucumber()">
+                            Ejecutar Test
+                        </button>
+                        <div class="feedback" id="cucumberFeedback"></div>
+                    </div>
+
+                    <div class="nav-buttons">
+                        <button class="btn btn-primary" onclick="prevModule()">
+                            ← Nivel Anterior
+                        </button>
+                        <button class="btn btn-primary" onclick="nextModule()">
+                            Siguiente Nivel →
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Module 3: Screenplay -->
+            <div class="content-card" id="module-3">
+                <div class="card-header">
+                    <h2>🎬 Nivel 3: Screenplay - El Patrón Dorado</h2>
+                    <p>Actores, Tasks y Questions</p>
+                </div>
+
+                <div class="video-container">
+                    <div class="video-placeholder" onclick="playVideo(3)">
+                        <div class="play-button">▶</div>
+                        <h3>Patrón Screenplay Explicado</h3>
+                        <p>Haz clic para reproducir</p>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <h3>🎭 Los 4 Pilares de Screenplay</h3>
+                    
+                    <div class="challenge-grid">
+                        <div class="challenge-card">
+                            <span class="difficulty easy">Actor</span>
+                            <h4>El Protagonista</h4>
+                            <p>Es quien ejecuta las acciones. Puede ser un usuario, un admin, etc.</p>
+                            <code>Actor.called("Juan")</code>
+                        </div>
+                        <div class="challenge-card">
+                            <span class="difficulty easy">Ability</span>
+                            <h4>La Habilidad</h4>
+                            <p>Lo que el actor puede hacer (navegar, usar API, etc.)</p>
+                            <code>can(BrowseTheWeb.with(...))</code>
+                        </div>
+                        <div class="challenge-card">
+                            <span class="difficulty medium">Task</span>
+                            <h4>La Tarea</h4>
+                            <p>Lo que el actor quiere lograr (iniciar sesión, comprar)</p>
+                            <code>actor.attemptsTo(Login.with(...))</code>
+                        </div>
+                        <div class="challenge-card">
+                            <span class="difficulty medium">Question</span>
+                            <h4>La Pregunta</h4>
+                            <p>Lo que el actor quiere saber (¿está logueado?)</p>
+                            <code>actor.asksFor(Title.isEqualTo(...))</code>
+                        </div>
+                    </div>
+
+                    <h3>🎮 Ejercicio: Crea una Task</h3>
+                    <p>Completa la Task para iniciar sesión:</p>
+
+                    <div class="exercise-container">
+                        <div class="exercise-title">💻 Creando Task de Login:</div>
+                        <textarea class="code-input" id="screenplayExercise" placeholder="public class LoginUI implements Task {
+    
+    private String username;
+    private String password;
+    
+    public LoginUI(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
+    
+    @Override
+    public <T extends Actor> void performAs(T actor) {
+        // Completa aquí:
+        // 1. Escribir username
+        // 2. Escribir password
+        // 3. Click en botón login
+    }
+}"></textarea>
+                        <button class="btn btn-primary" onclick="checkScreenplay()">
+                            Validar Task
+                        </button>
+                        <div class="feedback" id="screenplayFeedback"></div>
+                    </div>
+
+                    <div class="nav-buttons">
+                        <button class="btn btn-primary" onclick="prevModule()">
+                            ← Nivel Anterior
+                        </button>
+                        <button class="btn btn-primary" onclick="nextModule()">
+                            Siguiente Nivel →
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Module 4: Serenity -->
+            <div class="content-card" id="module-4">
+                <div class="card-header">
+                    <h2> Nivel 4: Serenity BDD</h2>
+                    <p>Reportes profesionales y Waits inteligentes</p>
+                </div>
+
+                <div class="video-container">
+                    <div class="video-placeholder" onclick="playVideo(4)">
+                        <div class="play-button">▶</div>
+                        <h3>Reportes Serenity y Waits</h3>
+                        <p>Haz clic para reproducir</p>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <h3>📸 Los Reportes de Serenity</h3>
+                    <p>Serenity genera reportes automáticos con screenshots, HTML y trazabilidad completa.</p>
+
+                    <div class="highlight-box warning">
+                        <strong>️ Prohibido:</strong> Usar Thread.sleep() en tus tests. 
+                        Es como poner una venda en los ojos del test.
+                    </div>
+
+                    <h3>⏱️ Waits Inteligentes</h3>
+
+                    <div class="code-block">
+<span class="comment">//  MAL - No uses esto</span>
+Thread.sleep(5000);
+
+<span class="comment">// ✅ BIEN - Usa waits de Serenity</span>
+actor.attemptsTo(WaitUntil.the(LOGIN_BUTTON, isClickable()));
+actor.attemptsTo(WaitUntil.the(DASHBOARD, isVisible()));
+                    </div>
+
+                    <h3>🎮 Reto: Corrige el Test</h3>
+                    <p>Este test tiene Thread.sleep(). Reemplázalos con waits de Serenity:</p>
+
+                    <div class="exercise-container">
+                        <div class="exercise-title">🔧 Código a Corregir:</div>
+                        <textarea class="code-input" id="serenityExercise" placeholder="@Test
+public void testLogin() {
+    actor.attemptsTo(Open.browserOn(LoginPage.class));
+    
+    Thread.sleep(2000); // Espera innecesaria
+    
+    actor.attemptsTo(Enter.theValue("user").into(USERNAME));
+    actor.attemptsTo(Enter.theValue("pass").into(PASSWORD));
+    
+    Thread.sleep(1000);
+    
+    actor.attemptsTo(Click.on(LOGIN_BUTTON));
+    
+    Thread.sleep(3000);
+    
+    assertThat(actor.asksFor(Text.of(DASHBOARD)))
+        .isEqualTo("Welcome");
+}"></textarea>
+                        <button class="btn btn-success" onclick="checkSerenity()">
+                            Corregir Test
+                        </button>
+                        <div class="feedback" id="serenityFeedback"></div>
+                    </div>
+
+                    <div class="nav-buttons">
+                        <button class="btn btn-primary" onclick="prevModule()">
+                            ← Nivel Anterior
+                        </button>
+                        <button class="btn btn-primary" onclick="nextModule()">
+                            Ir al Proyecto Final →
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Module 5: Final Project -->
+            <div class="content-card" id="module-5">
+                <div class="card-header">
+                    <h2> Proyecto Final</h2>
+                    <p>Aplicando todo lo aprendido</p>
+                </div>
+
+                <div class="content-section">
+                    <h3> El Reto Final</h3>
+                    <p>
+                        Vas a automatizar un flujo completo de e-commerce: 
+                        Login → Buscar Producto → Agregar al Carrito → Checkout
+                    </p>
+
+                    <div class="challenge-grid">
+                        <div class="challenge-card">
+                            <span class="difficulty hard">Nivel Experto</span>
+                            <h4>Flujo Completo</h4>
+                            <p>Automatiza las 4 etapas del proceso de compra</p>
+                            <ul style="margin-top: 1rem; padding-left: 1.5rem;">
+                                <li>✅ Login de usuario</li>
+                                <li>✅ Búsqueda de producto</li>
+                                <li>✅ Agregar al carrito</li>
+                                <li>✅ Proceso de checkout</li>
+                            </ul>
+                        </div>
+                        <div class="challenge-card">
+                            <span class="difficulty medium">Bonus</span>
+                            <h4>Validaciones</h4>
+                            <p>Agrega assertions en cada paso</p>
+                            <ul style="margin-top: 1rem; padding-left: 1.5rem;">
+                                <li>✅ Verificar login exitoso</li>
+                                <li>✅ Validar producto encontrado</li>
+                                <li>✅ Confirmar agregado al carrito</li>
+                                <li>✅ Verificar orden creada</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="highlight-box">
+                        <strong> Entrega:</strong> Sube tu código a GitHub y comparte el reporte de Serenity generado.
+                    </div>
+
+                    <h3>📝 Tu Solución</h3>
+                    <div class="exercise-container">
+                        <div class="exercise-title">💻 Feature File:</div>
+                        <textarea class="code-input" id="finalFeature" placeholder="Feature: Proceso de compra en e-commerce
+
+Scenario: Usuario compra un producto exitosamente
+  Given que el usuario está logueado
+  When busca el producto &quot;Zapatos Nike&quot;
+  And lo agrega al carrito
+  And completa el checkout
+  Then la orden debe ser creada exitosamente"></textarea>
+                    </div>
+
+                    <div class="exercise-container">
+                        <div class="exercise-title">💻 Step Definitions y Tasks:</div>
+                        <textarea class="code-input" id="finalCode" placeholder="// Tu implementación completa aquí
+// Incluye:
+// - Step Definitions
+// - Tasks (Login, Search, AddToCart, Checkout)
+// - Questions para validaciones
+// - Waits de Serenity"></textarea>
+                        <button class="btn btn-success" onclick="submitFinalProject()">
+                            🚀 Entregar Proyecto
+                        </button>
+                        <div class="feedback" id="finalFeedback"></div>
+                    </div>
+
+                    <div class="nav-buttons">
+                        <button class="btn btn-primary" onclick="prevModule()">
+                            ← Volver al Nivel 4
+                        </button>
+                        <button class="btn btn-primary" onclick="resetProgress()">
+                            🔄 Reiniciar Bootcamp
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // State Management
+        let currentModule = 0;
+        const totalModules = 6;
+        let completedModules = new Set();
+        let userProgress = {
+            quizzes: {},
+            exercises: {}
+        };
+
+        // Module Navigation
+        function showModule(index) {
+            // Hide all modules
+            document.querySelectorAll('.content-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            
+            // Show selected module
+            document.getElementById(`module-${index}`).classList.add('active');
+            
+            // Update sidebar
+            document.querySelectorAll('.module-btn').forEach((btn, i) => {
+                btn.classList.remove('active');
+                if (i === index) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            currentModule = index;
+            updateProgress();
+        }
+
+        function nextModule() {
+            if (currentModule < totalModules - 1) {
+                showModule(currentModule + 1);
+            }
+        }
+
+        function prevModule() {
+            if (currentModule > 0) {
+                showModule(currentModule - 1);
+            }
+        }
+
+        // Quiz System
+        function selectOption(element, moduleIndex, questionIndex, isCorrect) {
+            const parent = element.parentElement;
+            const options = parent.querySelectorAll('.quiz-option');
+            const feedback = document.getElementById(`feedback-${moduleIndex}-${questionIndex}`);
+            
+            options.forEach(opt => opt.classList.remove('selected', 'correct', 'incorrect'));
+            
+            if (isCorrect) {
+                element.classList.add('correct');
+                feedback.className = 'feedback success show';
+                feedback.innerHTML = '✅ ¡Correcto! La automatización no reemplaza testers, los potencia.';
+                markQuizComplete(moduleIndex, questionIndex, true);
+            } else {
+                element.classList.add('incorrect');
+                feedback.className = 'feedback error show';
+                feedback.innerHTML = '❌ Incorrecto. Piénsalo de nuevo: ¿La automatización encuentra bugs o ejecuta pruebas?';
+                markQuizComplete(moduleIndex, questionIndex, false);
+            }
+        }
+
+        function markQuizComplete(moduleIndex, questionIndex, correct) {
+            if (!userProgress.quizzes[moduleIndex]) {
+                userProgress.quizzes[moduleIndex] = {};
+            }
+            userProgress.quizzes[moduleIndex][questionIndex] = correct;
+            updateProgress();
+        }
+
+        // Exercise Checkers
+        function checkGherkin() {
+            const input = document.getElementById('gherkinExercise').value.toLowerCase();
+            const feedback = document.getElementById('gherkinFeedback');
+            
+            if (input.includes('given') && input.includes('when') && input.includes('then')) {
+                feedback.className = 'feedback success show';
+                feedback.innerHTML = '✅ ¡Excelente! Tu escenario tiene la estructura correcta: Given-When-Then';
+                completeExercise('gherkin');
+            } else {
+                feedback.className = 'feedback error show';
+                feedback.innerHTML = '❌ Recuerda: Todo escenario Gherkin debe tener Given (contexto), When (acción) y Then (resultado)';
+            }
+        }
+
+        function checkCucumber() {
+            const input = document.getElementById('cucumberExercise').value;
+            const feedback = document.getElementById('cucumberFeedback');
+            
+            if (input.includes('@Then') && (input.includes('should') || input.includes('debe'))) {
+                feedback.className = 'feedback success show';
+                feedback.innerHTML = '✅ ¡Bien! Tu step definition está correctamente anotado con @Then';
+                completeExercise('cucumber');
+            } else {
+                feedback.className = 'feedback error show';
+                feedback.innerHTML = '❌ Asegúrate de usar la anotación @Then y verificar el elemento en el DOM';
+            }
+        }
+
+        function checkScreenplay() {
+            const input = document.getElementById('screenplayExercise').value;
+            const feedback = document.getElementById('screenplayFeedback');
+            
+            if (input.includes('performAs') && (input.includes('Enter') || input.includes('Click'))) {
+                feedback.className = 'feedback success show';
+                feedback.innerHTML = '✅ ¡Perfecto! Tu Task implementa correctamente performAs() con interacciones';
+                completeExercise('screenplay');
+            } else {
+                feedback.className = 'feedback error show';
+                feedback.innerHTML = '❌ Recuerda: Una Task debe implementar performAs() y usar actor.attemptsTo()';
+            }
+        }
+
+        function checkSerenity() {
+            const input = document.getElementById('serenityExercise').value;
+            const feedback = document.getElementById('serenityFeedback');
+            
+            if (!input.includes('Thread.sleep') && input.includes('WaitUntil')) {
+                feedback.className = 'feedback success show';
+                feedback.innerHTML = '✅ ¡Excelente! Eliminaste los Thread.sleep() y usaste WaitUntil de Serenity';
+                completeExercise('serenity');
+            } else if (input.includes('Thread.sleep')) {
+                feedback.className = 'feedback error show';
+                feedback.innerHTML = '❌ Todavía hay Thread.sleep(). Reemplázalos con WaitUntil.the(element, isClickable())';
+            } else {
+                feedback.className = 'feedback success show';
+                feedback.innerHTML = '✅ ¡Bien! Ya no usas Thread.sleep(). Asegúrate de usar WaitUntil para sincronización';
+                completeExercise('serenity');
+            }
+        }
+
+        function completeExercise(exerciseName) {
+            userProgress.exercises[exerciseName] = true;
+            updateProgress();
+            checkBadges();
+        }
+
+        function submitFinalProject() {
+            const feature = document.getElementById('finalFeature').value;
+            const code = document.getElementById('finalCode').value;
+            const feedback = document.getElementById('finalFeedback');
+            
+            if (feature.length > 50 && code.length > 100) {
+                feedback.className = 'feedback success show';
+                feedback.innerHTML = `
+                    🎉 ¡Felicitaciones! Has completado el bootcamp.<br>
+                    📧 Tu proyecto ha sido guardado. Revisa tu email para instrucciones de entrega.<br>
+                    🏆 Desbloqueaste la insignia: "Automatizador Screenplay"
+                `;
+                completedModules.add(5);
+                updateProgress();
+                unlockBadge('Automatizador');
+            } else {
+                feedback.className = 'feedback error show';
+                feedback.innerHTML = '❌ Tu solución parece incompleta. Agrega más detalles al feature file y al código.';
+            }
+        }
+
+        // Progress Tracking
+        function updateProgress() {
+            const totalQuizzes = 2;
+            const totalExercises = 5;
+            let completedQuizzes = 0;
+            let completedExercises = 0;
+            
+            // Count completed quizzes
+            Object.values(userProgress.quizzes).forEach(module => {
+                Object.values(module).forEach(correct => {
+                    if (correct) completedQuizzes++;
+                });
+            });
+            
+            // Count completed exercises
+            completedExercises = Object.keys(userProgress.exercises).length;
+            
+            const totalTasks = totalQuizzes + totalExercises + totalModules;
+            const completedTasks = completedQuizzes + completedExercises + completedModules.size;
+            const percentage = Math.round((completedTasks / totalTasks) * 100);
+            
+            document.getElementById('progressBar').style.width = percentage + '%';
+            document.getElementById('progressText').textContent = percentage + '%';
+        }
+
+        // Badge System
+        function checkBadges() {
+            if (userProgress.exercises.gherkin) {
+                unlockBadge('Gherkin Master');
+            }
+            if (userProgress.exercises.screenplay && userProgress.exercises.serenity) {
+                unlockBadge('Screenplay Pro');
+            }
+            if (completedModules.size >= 3) {
+                unlockBadge('Primeros Pasos');
+            }
+        }
+
+        function unlockBadge(badgeName) {
+            const badges = document.querySelectorAll('.badge');
+            badges.forEach(badge => {
+                if (badge.textContent.includes(badgeName)) {
+                    badge.classList.remove('locked');
+                    badge.style.animation = 'slideIn 0.5s';
+                }
+            });
+        }
+
+        // Video Player (Placeholder)
+        function playVideo(moduleIndex) {
+            alert(`🎬 Reproduciendo video del Módulo ${moduleIndex}\n\nEn una implementación real, aquí se cargaría el video desde YouTube/Vimeo o un archivo local.`);
+        }
+
+        // Reset Progress
+        function resetProgress() {
+            if (confirm('¿Estás seguro de reiniciar todo tu progreso?')) {
+                currentModule = 0;
+                completedModules.clear();
+                userProgress = { quizzes: {}, exercises: {} };
+                
+                document.querySelectorAll('.content-card').forEach(card => {
+                    card.classList.remove('active');
+                });
+                document.getElementById('module-0').classList.add('active');
+                
+                document.querySelectorAll('.module-btn').forEach((btn, i) => {
+                    btn.classList.remove('active', 'completed');
+                    if (i === 0) btn.classList.add('active');
+                });
+                
+                document.querySelectorAll('.badge').forEach(badge => {
+                    badge.classList.add('locked');
+                });
+                
+                updateProgress();
+                showModule(0);
+            }
+        }
+
+        // Initialize
+        updateProgress();
+    </script>
+</body>
+</html>
