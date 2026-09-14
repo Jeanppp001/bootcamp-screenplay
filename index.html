@@ -1,700 +1,828 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bootcamp Interactivo: Screenplay + Serenity + Cucumber (Español)</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root {
-            --primary: #6366f1; --primary-dark: #4f46e5; --secondary: #10b981;
-            --danger: #ef4444; --warning: #f59e0b; --dark: #1e293b;
-            --light: #f8fafc; --gray: #64748b;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh; color: var(--dark);
-        }
-        .container { display: flex; min-height: 100vh; }
-        .sidebar {
-            width: 320px; background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px); padding: 2rem; overflow-y: auto;
-            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
-        }
-        .logo { text-align: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid var(--primary); }
-        .logo h1 { color: var(--primary); font-size: 1.5rem; margin-bottom: 0.5rem; }
-        .logo p { color: var(--gray); font-size: 0.85rem; }
-        .progress-container { background: var(--light); padding: 1rem; border-radius: 10px; margin-bottom: 2rem; }
-        .progress-bar { height: 12px; background: #e2e8f0; border-radius: 6px; overflow: hidden; margin-top: 0.5rem; }
-        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); transition: width 0.5s ease; width: 0%; }
-        .module-list { list-style: none; }
-        .module-item { margin-bottom: 0.5rem; }
-        .module-btn {
-            width: 100%; padding: 1rem; border: none; background: var(--light);
-            border-radius: 8px; cursor: pointer; text-align: left; transition: all 0.3s;
-            display: flex; align-items: center; gap: 0.75rem; font-size: 0.9rem;
-        }
-        .module-btn:hover { background: var(--primary); color: white; transform: translateX(5px); }
-        .module-btn.active { background: var(--primary); color: white; }
-        .module-btn.completed { background: var(--secondary); color: white; }
-        .module-icon {
-            width: 32px; height: 32px; background: rgba(0,0,0,0.1); border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem;
-        }
-        .main-content { flex: 1; padding: 2rem; overflow-y: auto; }
-        .content-card {
-            background: white; border-radius: 15px; padding: 2.5rem; margin-bottom: 2rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2); display: none; animation: fadeIn 0.5s;
-        }
-        .content-card.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .card-header { margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 3px solid var(--light); }
-        .card-header h2 { color: var(--primary); font-size: 2.2rem; margin-bottom: 0.5rem; }
-        .card-header p { color: var(--gray); font-size: 1.1rem; }
-        .video-container {
-            position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;
-            border-radius: 12px; margin-bottom: 2rem; background: var(--dark); box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-        }
-        .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
-        .video-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
-        .video-card { background: var(--light); border-radius: 10px; overflow: hidden; transition: transform 0.3s; }
-        .video-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
-        .video-card iframe { width: 100%; height: 180px; border: none; }
-        .video-card-info { padding: 1rem; }
-        .video-card-info h4 { color: var(--primary); margin-bottom: 0.5rem; font-size: 1rem; }
-        .video-card-info p { color: var(--gray); font-size: 0.85rem; }
-        .content-section { margin-bottom: 2.5rem; }
-        .content-section h3 { color: var(--dark); margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.75rem; font-size: 1.5rem; }
-        .content-section p, .content-section ul { line-height: 1.9; color: var(--gray); margin-bottom: 1.2rem; font-size: 1.05rem; }
-        .content-section ul { padding-left: 1.5rem; }
-        .highlight-box {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;
-            padding: 1.8rem; border-radius: 12px; margin: 2rem 0; box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
-        }
-        .highlight-box.warning { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
-        .highlight-box.success { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
-        .exercise-container {
-            background: var(--light); border-radius: 12px; padding: 2rem; margin: 2rem 0;
-            border-left: 5px solid var(--primary); box-shadow: 0 3px 10px rgba(0,0,0,0.05);
-        }
-        .exercise-title { font-weight: bold; color: var(--primary); margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.75rem; font-size: 1.2rem; }
-        .code-input {
-            width: 100%; min-height: 180px; font-family: 'Courier New', monospace; font-size: 0.95rem;
-            padding: 1.2rem; border: 2px solid #e2e8f0; border-radius: 10px; resize: vertical;
-            background: #1e293b; color: #e2e8f0; margin-bottom: 1.2rem; line-height: 1.6;
-        }
-        .code-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); }
-        .btn {
-            padding: 0.9rem 1.8rem; border: none; border-radius: 10px; cursor: pointer;
-            font-weight: bold; transition: all 0.3s; display: inline-flex; align-items: center; gap: 0.75rem; font-size: 1rem;
-        }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-3px); box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4); }
-        .btn-success { background: var(--secondary); color: white; }
-        .btn-success:hover { background: #059669; transform: translateY(-3px); }
-        .btn-warning { background: var(--warning); color: white; }
-        .feedback { margin-top: 1.2rem; padding: 1.2rem; border-radius: 10px; display: none; animation: slideIn 0.3s; }
-        .feedback.show { display: block; }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        .feedback.success { background: #d1fae5; color: #065f46; border: 2px solid var(--secondary); }
-        .feedback.error { background: #fee2e2; color: #991b1b; border: 2px solid var(--danger); }
-        .quiz-container {
-            background: white; border-radius: 12px; padding: 1.8rem; margin: 1.5rem 0;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08); border: 2px solid #e2e8f0;
-        }
-        .quiz-question { font-weight: bold; margin-bottom: 1.2rem; color: var(--dark); font-size: 1.15rem; }
-        .quiz-options { display: flex; flex-direction: column; gap: 0.9rem; }
-        .quiz-option {
-            padding: 1.2rem; background: var(--light); border: 2px solid transparent;
-            border-radius: 10px; cursor: pointer; transition: all 0.3s;
-        }
-        .quiz-option:hover { border-color: var(--primary); background: #eef2ff; }
-        .quiz-option.correct { border-color: var(--secondary); background: #d1fae5; }
-        .quiz-option.incorrect { border-color: var(--danger); background: #fee2e2; }
-        .challenge-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.8rem; margin: 2rem 0; }
-        .challenge-card {
-            background: white; border-radius: 12px; padding: 1.8rem; border: 2px solid #e2e8f0;
-            transition: all 0.3s; cursor: pointer;
-        }
-        .challenge-card:hover { border-color: var(--primary); transform: translateY(-5px); box-shadow: 0 12px 30px rgba(0,0,0,0.12); }
-        .challenge-card h4 { color: var(--primary); margin-bottom: 0.75rem; font-size: 1.2rem; }
-        .challenge-card .difficulty {
-            display: inline-block; padding: 0.35rem 1rem; border-radius: 20px;
-            font-size: 0.85rem; font-weight: bold; margin-bottom: 0.75rem;
-        }
-        .difficulty.easy { background: #d1fae5; color: #065f46; }
-        .difficulty.medium { background: #fef3c7; color: #92400e; }
-        .difficulty.hard { background: #fee2e2; color: #991b1b; }
-        .nav-buttons { display: flex; justify-content: space-between; margin-top: 2.5rem; padding-top: 2rem; border-top: 3px solid var(--light); }
-        .badge {
-            display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1.2rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;
-            border-radius: 25px; font-size: 0.9rem; font-weight: bold; margin: 0.5rem; transition: all 0.3s;
-        }
-        .badge.locked { background: #cbd5e1; cursor: not-allowed; opacity: 0.6; }
-        .badge.unlocked { animation: pulse 0.5s; }
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
-        .code-block {
-            background: #1e293b; color: #e2e8f0; padding: 1.5rem; border-radius: 10px;
-            font-family: 'Courier New', monospace; overflow-x: auto; margin: 1.5rem 0; line-height: 1.6;
-        }
-        .code-block .keyword { color: #c084fc; }
-        .code-block .string { color: #86efac; }
-        .code-block .comment { color: #64748b; font-style: italic; }
-        .code-block .function { color: #60a5fa; }
-        .code-block .annotation { color: #fbbf24; }
-        @media (max-width: 768px) {
-            .container { flex-direction: column; }
-            .sidebar { width: 100%; max-height: 400px; }
-            .content-card { padding: 1.5rem; }
-        }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
-        .stat-card { background: white; padding: 1.5rem; border-radius: 12px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
-        .stat-number { font-size: 2.5rem; font-weight: bold; color: var(--primary); display: block; }
-        .stat-label { color: var(--gray); margin-top: 0.5rem; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guion de Automatización — Screenplay + Serenity + Cucumber</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --stage:#131319;
+    --stage-2:#1c1c26;
+    --paper:#F2ECDA;
+    --paper-dim:#e7dfc7;
+    --ink:#211f2b;
+    --ink-soft:#514f60;
+    --amber:#E8A33D;
+    --amber-dim:#c98a2c;
+    --marquee:#C2452D;
+    --sage:#5f8f74;
+    --rule:#3a3a48;
+    --focus:#8fd0e0;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    font-family:'Source Sans 3', system-ui, sans-serif;
+    background:var(--stage);
+    color:var(--paper);
+    min-height:100vh;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.01ms !important; transition-duration:0.01ms !important;}
+  }
+  a{color:var(--amber);}
+  .layout{display:flex; min-height:100vh;}
+
+  /* ---------- Sidebar: "Índice de escenas" ---------- */
+  .sidebar{
+    width:310px; flex-shrink:0;
+    background:var(--stage-2);
+    border-right:1px solid var(--rule);
+    padding:2rem 1.5rem;
+    display:flex; flex-direction:column; gap:1.75rem;
+  }
+  .slate{
+    border:1px solid var(--rule);
+    padding:1rem 1.1rem;
+    background:#101016;
+  }
+  .slate .title-of{font-family:'Courier Prime', monospace; font-size:0.72rem; letter-spacing:0.04em; color:var(--amber);}
+  .slate h1{font-family:'Courier Prime', monospace; font-size:1.15rem; margin:0.35rem 0 0.2rem; line-height:1.3;}
+  .slate p{margin:0; color:#a9a6b8; font-size:0.85rem;}
+
+  .reel{font-family:'Courier Prime', monospace; font-size:0.8rem; color:#a9a6b8; display:flex; justify-content:space-between;}
+  .reel-track{height:4px; background:#2a2a35; margin-top:0.5rem; position:relative;}
+  .reel-fill{height:100%; width:0%; background:var(--amber); transition:width .4s ease;}
+
+  nav.scenes{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:0.4rem;}
+  .scene-btn{
+    all:unset; cursor:pointer;
+    display:flex; align-items:center; gap:0.85rem;
+    padding:0.8rem 0.75rem;
+    border-left:3px solid transparent;
+    color:#c9c6d6; font-size:0.92rem;
+  }
+  .scene-btn:hover{background:#20202b; color:var(--paper);}
+  .scene-btn:focus-visible{outline:2px solid var(--focus); outline-offset:2px;}
+  .scene-btn.active{border-left-color:var(--amber); background:#20202b; color:var(--paper);}
+  .scene-btn.done .scene-num{color:var(--sage); border-color:var(--sage);}
+  .scene-num{
+    font-family:'Courier Prime', monospace; font-weight:700; font-size:0.85rem;
+    width:28px; height:28px; border:1px solid #4a4a58; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .scene-label b{display:block; font-size:0.92rem;}
+  .scene-label small{color:#8c8998; font-size:0.78rem;}
+
+  .credits{border-top:1px solid var(--rule); padding-top:1.25rem;}
+  .credits h4{font-family:'Courier Prime', monospace; font-size:0.85rem; color:var(--amber); margin:0 0 0.75rem;}
+  .badge-row{display:flex; flex-wrap:wrap; gap:0.5rem;}
+  .badge{
+    font-family:'Courier Prime', monospace; font-size:0.72rem;
+    padding:0.4rem 0.65rem; border:1px solid #4a4a58; color:#77748a;
+  }
+  .badge.unlocked{border-color:var(--amber); color:var(--amber); animation:flash .5s ease;}
+  @keyframes flash{0%{background:var(--amber); color:var(--stage-2);} 100%{background:transparent; color:var(--amber);}}
+
+  .qr-box{text-align:center;}
+  .qr-box p{font-size:0.75rem; color:#8c8998; margin-top:0.5rem;}
+
+  /* ---------- Main content ---------- */
+  main{flex:1; padding:2.5rem 3rem; overflow-y:auto;}
+  .scene{display:none;}
+  .scene.active{display:block; animation:rise .35s ease;}
+  @keyframes rise{from{opacity:0; transform:translateY(12px);} to{opacity:1; transform:translateY(0);}}
+
+  .slugline{font-family:'Courier Prime', monospace; font-size:0.82rem; letter-spacing:0.03em; color:var(--amber); margin-bottom:0.6rem;}
+  .scene h2{font-family:'Courier Prime', monospace; font-size:1.9rem; margin:0 0 0.4rem; color:var(--paper); line-height:1.25;}
+  .scene .dek{color:#a9a6b8; font-size:1.05rem; max-width:60ch; margin:0 0 2rem;}
+
+  .page{
+    background:var(--paper); color:var(--ink);
+    padding:2rem 2.25rem; margin-bottom:1.75rem;
+    border:1px solid #d9d0b2;
+  }
+  .page h3{font-family:'Courier Prime', monospace; font-size:1.15rem; margin:0 0 1rem; color:var(--marquee);}
+  .page p, .page li{line-height:1.75; font-size:1.02rem; color:var(--ink-soft); max-width:70ch;}
+  .page ul{padding-left:1.4rem; margin:0 0 1rem;}
+  .direction{
+    border-left:3px solid var(--amber-dim); padding:0.9rem 1.1rem; margin:1.2rem 0;
+    background:#e9e0c4; font-size:0.98rem; color:var(--ink);
+  }
+  .direction.warn{border-left-color:var(--marquee); background:#ecd9d0;}
+  .direction.ok{border-left-color:var(--sage); background:#dfe8de;}
+
+  .video-frame{position:relative; padding-bottom:56.25%; height:0; background:#000; margin-bottom:1rem;}
+  .video-frame iframe{position:absolute; inset:0; width:100%; height:100%; border:0;}
+  .video-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:1.25rem; margin-bottom:1rem;}
+  .video-cap{font-size:0.88rem; color:var(--ink-soft); margin-top:0.5rem;}
+  .video-cap b{color:var(--ink); display:block; font-size:0.95rem;}
+
+  .code-block{
+    background:#161620; color:#e5e2f0; padding:1.3rem 1.5rem;
+    font-family:'Courier Prime', monospace; font-size:0.9rem; line-height:1.7;
+    overflow-x:auto; margin:1.2rem 0; white-space:pre;
+  }
+  .code-block .kw{color:#c9a0e0;} .code-block .str{color:#9fd6a8;} .code-block .cm{color:#75718a; font-style:italic;} .code-block .an{color:var(--amber);}
+
+  .drill{border:1px solid #d9d0b2; padding:1.5rem; margin:1.5rem 0; background:#e9e2cc;}
+  .drill-title{font-family:'Courier Prime', monospace; font-weight:700; color:var(--marquee); margin-bottom:0.9rem; font-size:1rem;}
+  textarea{
+    width:100%; min-height:160px; font-family:'Courier Prime', monospace; font-size:0.88rem;
+    padding:1rem; border:1px solid var(--rule); resize:vertical;
+    background:#101016; color:#e5e2f0; margin-bottom:0.9rem; line-height:1.6;
+  }
+  textarea:focus-visible{outline:2px solid var(--focus); outline-offset:1px;}
+
+  button.action{
+    font-family:'Source Sans 3', sans-serif; font-weight:600;
+    padding:0.7rem 1.3rem; border:1px solid var(--ink); cursor:pointer; font-size:0.95rem;
+    background:var(--ink); color:var(--paper);
+  }
+  button.action:hover{background:#000;}
+  button.action:focus-visible{outline:2px solid var(--focus); outline-offset:2px;}
+  button.action.secondary{background:transparent; color:var(--ink); border-color:var(--ink);}
+  button.action.danger{background:var(--marquee); border-color:var(--marquee); color:#fff;}
+
+  .fb{margin-top:0.9rem; padding:0.85rem 1rem; display:none; font-size:0.95rem;}
+  .fb.show{display:block;}
+  .fb.ok{background:#dfe8de; color:#2e4a3a; border:1px solid var(--sage);}
+  .fb.bad{background:#ecd9d0; color:#7a2c1a; border:1px solid var(--marquee);}
+
+  .quiz{border:1px solid #d9d0b2; padding:1.4rem 1.5rem; margin:1.2rem 0; background:#ece6d4;}
+  .quiz p.q{font-weight:600; color:var(--ink); margin:0 0 1rem; font-size:1.02rem;}
+  .opts{display:flex; flex-direction:column; gap:0.6rem;}
+  .opt{
+    all:unset; cursor:pointer; display:block;
+    padding:0.85rem 1rem; background:var(--paper); border:1px solid #cbc19f; color:var(--ink); font-size:0.96rem;
+  }
+  .opt:hover:not(:disabled){border-color:var(--ink);}
+  .opt:focus-visible{outline:2px solid var(--focus); outline-offset:2px;}
+  .opt.correct{border-color:var(--sage); background:#dfe8de;}
+  .opt.incorrect{border-color:var(--marquee); background:#ecd9d0;}
+  .opt:disabled{cursor:default;}
+
+  .pillars{display:grid; grid-template-columns:repeat(auto-fit, minmax(230px,1fr)); gap:1.1rem; margin:1.5rem 0;}
+  .pillar{border:1px solid #d9d0b2; padding:1.3rem; background:#e9e2cc;}
+  .pillar .tag{font-family:'Courier Prime', monospace; font-size:0.72rem; color:#fff; background:var(--ink); padding:0.2rem 0.55rem; display:inline-block; margin-bottom:0.6rem;}
+  .pillar h4{margin:0 0 0.4rem; font-size:1.05rem; color:var(--ink);}
+  .pillar p{font-size:0.92rem; margin:0 0 0.6rem;}
+  .pillar code{display:block; background:#161620; color:#e5e2f0; padding:0.5rem 0.7rem; font-size:0.82rem; font-family:'Courier Prime', monospace;}
+
+  .stat-row{display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr)); gap:1rem; margin-bottom:1.75rem;}
+  .stat{border:1px solid #d9d0b2; background:#e9e2cc; padding:1.2rem; text-align:center;}
+  .stat b{display:block; font-family:'Courier Prime', monospace; font-size:2rem; color:var(--marquee);}
+  .stat span{font-size:0.85rem; color:var(--ink-soft);}
+
+  .wrap-btns{display:flex; justify-content:space-between; margin-top:2rem;}
+  .wrap-btns > *:only-child{margin-left:auto;}
+
+  .toast{
+    position:fixed; top:1.25rem; right:1.25rem; background:var(--ink); color:var(--paper);
+    padding:1rem 1.3rem; font-size:0.9rem; border-left:3px solid var(--amber); z-index:999;
+    animation:rise .4s ease;
+  }
+
+  @media (max-width: 860px){
+    .layout{flex-direction:column;}
+    .sidebar{width:100%; border-right:none; border-bottom:1px solid var(--rule);}
+    main{padding:1.5rem;}
+  }
+</style>
 </head>
 <body>
-    <div class="container">
-        <aside class="sidebar">
-            <div class="logo">
-                <h1>🎬 Screenplay Bootcamp</h1>
-                <p>Automatización con Serenity + Cucumber</p>
-            </div>
-            <div class="progress-container">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                    <span style="font-weight: bold;">📊 Tu Progreso</span>
-                    <span id="progressText" style="font-weight: bold; color: var(--primary);">0%</span>
-                </div>
-                <div class="progress-bar"><div class="progress-fill" id="progressBar"></div></div>
-            </div>
-            <ul class="module-list">
-                <li class="module-item"><button class="module-btn active" onclick="showModule(0)"><div class="module-icon">0</div><div><div style="font-weight: bold;">Nivel 0-1: Gherkin</div><small>Introducción y Sintaxis</small></div></button></li>
-                <li class="module-item"><button class="module-btn" onclick="showModule(1)"><div class="module-icon">2</div><div><div style="font-weight: bold;">Nivel 2: Cucumber</div><small>Framework y Step Definitions</small></div></button></li>
-                <li class="module-item"><button class="module-btn" onclick="showModule(2)"><div class="module-icon">3</div><div><div style="font-weight: bold;">Nivel 3: Screenplay</div><small>El Patrón Dorado</small></div></button></li>
-                <li class="module-item"><button class="module-btn" onclick="showModule(3)"><div class="module-icon">4</div><div><div style="font-weight: bold;">Nivel 4: Serenity</div><small>Reportes y Living Documentation</small></div></button></li>
-                <li class="module-item"><button class="module-btn" onclick="showModule(4)"><div class="module-icon">★</div><div><div style="font-weight: bold;">Proyecto Final</div><small>Aplicación Real</small></div></button></li>
-            </ul>
-            <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 2px solid var(--light);">
-                <h4 style="margin-bottom: 1rem; color: var(--primary);">🏆 Tus Logros</h4>
-                <div id="badgesContainer">
-                    <span class="badge locked" id="badge-1">🎯 Primeros Pasos</span>
-                    <span class="badge locked" id="badge-2">📝 Gherkin Master</span>
-                    <span class="badge locked" id="badge-3">🎬 Screenplay Pro</span>
-                    <span class="badge locked" id="badge-4">🚀 Automatizador</span>
-                </div>
-            </div>
-            <div style="margin-top: 1.5rem; padding: 1rem; background: var(--light); border-radius: 10px;">
-                <h4 style="margin-bottom: 0.75rem; color: var(--primary);">📱 Escanea para acceder</h4>
-                <div id="qrcode" style="text-align: center;"></div>
-                <p style="font-size: 0.85rem; color: var(--gray); margin-top: 0.5rem;">Escanea este QR con tu celular</p>
-            </div>
-        </aside>
+<div class="layout">
 
-        <main class="main-content">
-            <!-- Module 0-1: Gherkin -->
-            <div class="content-card active" id="module-0">
-                <div class="card-header">
-                    <h2>📚 Nivel 0-1: Gherkin - El Lenguaje del Negocio</h2>
-                    <p>Aprendiendo la sintaxis Given/When/Then en español</p>
-                </div>
-                <div class="video-grid">
-                    <div class="video-card">
-                        <iframe src="https://www.youtube.com/embed/O6Hd0Xsu3OU" allowfullscreen></iframe>
-                        <div class="video-card-info">
-                            <h4>1. ¿Qué es Gherkin?</h4>
-                            <p>Explicación ideal como primer contacto con el lenguaje.</p>
-                        </div>
-                    </div>
-                    <div class="video-card">
-                        <iframe src="https://www.youtube.com/embed/Ea-h0OTz-r4" allowfullscreen></iframe>
-                        <div class="video-card-info">
-                            <h4>2. Introducción a Gherkin (Parte 1)</h4>
-                            <p>Serie iniciando el camino hacia Cucumber.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="content-section">
-                    <div class="highlight-box">
-                        <strong>💡 La Verdad Sincera:</strong> Gherkin no es para que el programador se sienta bien. Es para que el Product Owner, el QA y el Dev lean el mismo archivo y no haya malentendidos.
-                    </div>
-                    <h3>🌟 Estructura Gherkin</h3>
-                    <div class="code-block">
-<span class="comment"># Ejemplo de escenario Gherkin</span>
-<span class="keyword">Feature:</span> Login de usuarios
-  <span class="keyword">Scenario:</span> Usuario inicia sesión correctamente
-    <span class="keyword">Given</span> que estoy en la página de login
-    <span class="keyword">When</span> ingreso mis credenciales válidas
-    <span class="keyword">Then</span> debo ver el dashboard principal
-                    </div>
-                    <div class="highlight-box success">
-                        <strong>✅ Regla de Oro:</strong> Given = Contexto | When = Acción | Then = Resultado Esperado
-                    </div>
-                    <h3>🎮 Ejercicio Práctico</h3>
-                    <p>Escribe un escenario Gherkin para: "Un usuario agrega un producto al carrito"</p>
-                    <div class="exercise-container">
-                        <div class="exercise-title">✍️ Tu Escenario:</div>
-                        <textarea class="code-input" id="gherkinExercise" placeholder="Feature: Agregar producto al carrito&#10;&#10;Scenario: Usuario agrega producto al carrito exitosamente&#10;  Given que el usuario está en la página de productos&#10;  When selecciona un producto y hace clic en 'Agregar al carrito'&#10;  Then el producto debe aparecer en el carrito"></textarea>
-                        <button class="btn btn-primary" onclick="checkGherkin()">Verificar Escenario ✓</button>
-                        <div class="feedback" id="gherkinFeedback"></div>
-                    </div>
-                    <div class="quiz-container">
-                        <div class="quiz-question">¿Cuál es la palabra clave que define el contexto inicial?</div>
-                        <div class="quiz-options">
-                            <div class="quiz-option" onclick="selectOption(this, 0, 0, false)">When</div>
-                            <div class="quiz-option" onclick="selectOption(this, 0, 0, false)">Then</div>
-                            <div class="quiz-option" onclick="selectOption(this, 0, 0, true)">Given</div>
-                            <div class="quiz-option" onclick="selectOption(this, 0, 0, false)">And</div>
-                        </div>
-                        <div class="feedback" id="feedback-0-0"></div>
-                    </div>
-                    <div class="nav-buttons">
-                        <button class="btn btn-primary" onclick="nextModule()">Siguiente Nivel →</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Module 2: Cucumber -->
-            <div class="content-card" id="module-1">
-                <div class="card-header">
-                    <h2>🥒 Nivel 2: Cucumber - El Framework</h2>
-                    <p>Conectando Gherkin con código Java</p>
-                </div>
-                <div class="video-container">
-                    <iframe src="https://www.youtube.com/embed/vL-jj5t8EDs" allowfullscreen></iframe>
-                </div>
-                <div class="content-section">
-                    <h3>🎥 Video Recomendado</h3>
-                    <p><strong>"Tutorial de Cucumber con Java Capítulo 1: Hola mundo"</strong> - Primer capítulo de la serie de Cucumber con Java y TestNG, explicado paso a paso en español.</p>
-                    
-                    <h3>🔧 ¿Cómo funciona Cucumber?</h3>
-                    <div class="code-block">
-<span class="annotation">@Given</span>(<span class="string">"que estoy en la página de login"</span>)
-<span class="keyword">public void</span> <span class="function">estoyEnLogin</span>() {
-    actor.attemptsTo(Open.browserOn().the(LoginPage.class));
-}
-<span class="annotation">@Then</span>(<span class="string">"debo ver el dashboard principal"</span>)
-<span class="keyword">public void</span> <span class="function">deboVerDashboard</span>() {
-    assertThat(actor.asksFor(Text.of(DASHBOARD_TITLE))).isEqualTo("Dashboard");
-}
-                    </div>
-                    <h3>🎮 Reto: Completa el Step Definition</h3>
-                    <div class="exercise-container">
-                        <div class="exercise-title">💻 Tu Código:</div>
-                        <textarea class="code-input" id="cucumberExercise" placeholder="@Then(&quot;debo ver el dashboard principal&quot;)&#10;public void deboVerDashboard() {&#10;    // Tu código aquí&#10;    // Pista: Usa actor.asksFor() y assertThat()&#10;}"></textarea>
-                        <button class="btn btn-primary" onclick="checkCucumber()">Ejecutar Test ▶</button>
-                        <div class="feedback" id="cucumberFeedback"></div>
-                    </div>
-                    <div class="quiz-container">
-                        <div class="quiz-question">¿Qué anotación usas para un paso "Given"?</div>
-                        <div class="quiz-options">
-                            <div class="quiz-option" onclick="selectOption(this, 1, 0, false)">@When</div>
-                            <div class="quiz-option" onclick="selectOption(this, 1, 0, true)">@Given</div>
-                            <div class="quiz-option" onclick="selectOption(this, 1, 0, false)">@Then</div>
-                        </div>
-                        <div class="feedback" id="feedback-1-0"></div>
-                    </div>
-                    <div class="nav-buttons">
-                        <button class="btn btn-primary" onclick="prevModule()">← Nivel Anterior</button>
-                        <button class="btn btn-primary" onclick="nextModule()">Siguiente Nivel →</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Module 3: Screenplay -->
-            <div class="content-card" id="module-2">
-                <div class="card-header">
-                    <h2>🎬 Nivel 3: Screenplay - El Patrón Dorado</h2>
-                    <p>Actores, Tasks y Questions</p>
-                </div>
-                <!-- Playlist embed format: /embed/videoseries?list=PLAYLIST_ID -->
-                <div class="video-container">
-                    <iframe src="https://www.youtube.com/embed/videoseries?list=PLeo6Q1inqlOcct4kW0L3HQJubwZqJVLd7" allowfullscreen></iframe>
-                </div>
-                <div class="content-section">
-                    <h3>🎥 Playlist Recomendada</h3>
-                    <p><strong>"Curso Serenity BDD / ScreenPlay Web en Español"</strong> - Playlist completa que cubre configuración, tasks, questions y assertions con el patrón Screenplay paso a paso.</p>
-                    <div class="highlight-box">
-                        <strong>💡 Recurso Extra:</strong> Si también necesitas testing de APIs, busca la playlist del mismo autor: <em>"Curso Serenity BDD | Screenplay Rest en Español"</em>.
-                    </div>
-                    <h3>🎭 Los 4 Pilares de Screenplay</h3>
-                    <div class="challenge-grid">
-                        <div class="challenge-card">
-                            <span class="difficulty easy">Actor</span>
-                            <h4>El Protagonista</h4>
-                            <p>Es quien ejecuta las acciones.</p>
-                            <code style="background: var(--light); padding: 0.3rem 0.6rem; border-radius: 5px; display: block; margin-top: 0.5rem;">Actor.called("Juan")</code>
-                        </div>
-                        <div class="challenge-card">
-                            <span class="difficulty easy">Ability</span>
-                            <h4>La Habilidad</h4>
-                            <p>Lo que el actor puede hacer.</p>
-                            <code style="background: var(--light); padding: 0.3rem 0.6rem; border-radius: 5px; display: block; margin-top: 0.5rem;">can(BrowseTheWeb.with(...))</code>
-                        </div>
-                        <div class="challenge-card">
-                            <span class="difficulty medium">Task</span>
-                            <h4>La Tarea</h4>
-                            <p>Lo que el actor quiere lograr.</p>
-                            <code style="background: var(--light); padding: 0.3rem 0.6rem; border-radius: 5px; display: block; margin-top: 0.5rem;">actor.attemptsTo(Login.with(...))</code>
-                        </div>
-                        <div class="challenge-card">
-                            <span class="difficulty medium">Question</span>
-                            <h4>La Pregunta</h4>
-                            <p>Lo que el actor quiere saber.</p>
-                            <code style="background: var(--light); padding: 0.3rem 0.6rem; border-radius: 5px; display: block; margin-top: 0.5rem;">actor.asksFor(Title.isEqualTo(...))</code>
-                        </div>
-                    </div>
-                    <h3>🎮 Ejercicio: Crea una Task</h3>
-                    <div class="exercise-container">
-                        <div class="exercise-title">💻 Creando Task de Login:</div>
-                        <textarea class="code-input" id="screenplayExercise" placeholder="public class LoginUI implements Task {&#10;    private String username, password;&#10;    public LoginUI(String user, String pass) { ... }&#10;    @Override&#10;    public <T extends Actor> void performAs(T actor) {&#10;        // 1. actor.attemptsTo(Enter.theValue(username).into(USERNAME_FIELD));&#10;        // 2. actor.attemptsTo(Enter.theValue(password).into(PASSWORD_FIELD));&#10;        // 3. actor.attemptsTo(Click.on(LOGIN_BUTTON));&#10;    }&#10;}"></textarea>
-                        <button class="btn btn-primary" onclick="checkScreenplay()">Validar Task ✓</button>
-                        <div class="feedback" id="screenplayFeedback"></div>
-                    </div>
-                    <div class="quiz-container">
-                        <div class="quiz-question">¿Qué método debe implementar una Task?</div>
-                        <div class="quiz-options">
-                            <div class="quiz-option" onclick="selectOption(this, 2, 0, false)">execute()</div>
-                            <div class="quiz-option" onclick="selectOption(this, 2, 0, true)">performAs()</div>
-                            <div class="quiz-option" onclick="selectOption(this, 2, 0, false)">run()</div>
-                        </div>
-                        <div class="feedback" id="feedback-2-0"></div>
-                    </div>
-                    <div class="nav-buttons">
-                        <button class="btn btn-primary" onclick="prevModule()">← Nivel Anterior</button>
-                        <button class="btn btn-primary" onclick="nextModule()">Siguiente Nivel →</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Module 4: Serenity -->
-            <div class="content-card" id="module-3">
-                <div class="card-header">
-                    <h2>🎥 Nivel 4: Serenity BDD - Reportes</h2>
-                    <p>De especificaciones ejecutables a living documentation</p>
-                </div>
-                <div class="video-grid">
-                    <div class="video-card">
-                        <iframe src="https://www.youtube.com/embed/d1SHfKGlu7M" allowfullscreen></iframe>
-                        <div class="video-card-info">
-                            <h4>1. Reportes en Serenity (3 de 3)</h4>
-                            <p>Cómo configurar y generar reportes.</p>
-                        </div>
-                    </div>
-                    <div class="video-card">
-                        <iframe src="https://www.youtube.com/embed/_IlqXbq4qG4" allowfullscreen></iframe>
-                        <div class="video-card-info">
-                            <h4>2. Reporte general de Serenity BDD</h4>
-                            <p>Cómo generar e interpretar el reporte.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="content-section">
-                    <div class="highlight-box warning">
-                        <strong>⚠️ Prohibido:</strong> Usar Thread.sleep() en tus tests. Es como poner una venda en los ojos del test.
-                    </div>
-                    <h3>⏱️ Waits Inteligentes</h3>
-                    <div class="code-block">
-<span class="comment">// ❌ MAL</span>
-Thread.sleep(5000);
-<span class="comment">// ✅ BIEN</span>
-actor.attemptsTo(WaitUntil.the(LOGIN_BUTTON, isClickable()));
-                    </div>
-                    <h3>🎮 Reto: Corrige el Test</h3>
-                    <div class="exercise-container">
-                        <div class="exercise-title">🔧 Código a Corregir:</div>
-                        <textarea class="code-input" id="serenityExercise" placeholder="@Test&#10;public void testLogin() {&#10;    actor.attemptsTo(Open.browserOn(LoginPage.class));&#10;    Thread.sleep(2000); // <-- ¡Corrige esto!&#10;    actor.attemptsTo(Enter.theValue(&quot;user&quot;).into(USERNAME));&#10;    // ... completa con WaitUntil&#10;}"></textarea>
-                        <button class="btn btn-success" onclick="checkSerenity()">Corregir Test ✓</button>
-                        <div class="feedback" id="serenityFeedback"></div>
-                    </div>
-                    <div class="quiz-container">
-                        <div class="quiz-question">¿Cuál es la forma correcta de esperar un elemento?</div>
-                        <div class="quiz-options">
-                            <div class="quiz-option" onclick="selectOption(this, 3, 0, false)">Thread.sleep(5000)</div>
-                            <div class="quiz-option" onclick="selectOption(this, 3, 0, true)">WaitUntil.the(element, isClickable())</div>
-                            <div class="quiz-option" onclick="selectOption(this, 3, 0, false)">waitForElement()</div>
-                        </div>
-                        <div class="feedback" id="feedback-3-0"></div>
-                    </div>
-                    <div class="nav-buttons">
-                        <button class="btn btn-primary" onclick="prevModule()">← Nivel Anterior</button>
-                        <button class="btn btn-primary" onclick="nextModule()">Ir al Proyecto Final →</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Module 5: Final Project -->
-            <div class="content-card" id="module-4">
-                <div class="card-header">
-                    <h2>🏆 Proyecto Final</h2>
-                    <p>Aplicando todo lo aprendido</p>
-                </div>
-                <div class="stats-grid">
-                    <div class="stat-card"><span class="stat-number">4</span><div class="stat-label">Módulos Completados</div></div>
-                    <div class="stat-card"><span class="stat-number">12</span><div class="stat-label">Ejercicios Realizados</div></div>
-                    <div class="stat-card"><span class="stat-number" id="finalScore">0%</span><div class="stat-label">Progreso Total</div></div>
-                </div>
-                <div class="content-section">
-                    <h3>🎯 El Reto Final</h3>
-                    <p>Vas a automatizar un flujo completo de e-commerce: <strong>Login → Buscar Producto → Agregar al Carrito → Checkout</strong></p>
-                    <div class="challenge-grid">
-                        <div class="challenge-card">
-                            <span class="difficulty hard">Nivel Experto</span>
-                            <h4>Flujo Completo</h4>
-                            <ul style="margin-top: 1rem; padding-left: 1.5rem; line-height: 2;">
-                                <li>✅ Login de usuario</li><li>✅ Búsqueda de producto</li>
-                                <li>✅ Agregar al carrito</li><li>✅ Proceso de checkout</li>
-                            </ul>
-                        </div>
-                        <div class="challenge-card">
-                            <span class="difficulty medium">Bonus</span>
-                            <h4>Validaciones</h4>
-                            <ul style="margin-top: 1rem; padding-left: 1.5rem; line-height: 2;">
-                                <li>✅ Verificar login exitoso</li><li>✅ Validar producto encontrado</li>
-                                <li>✅ Confirmar agregado al carrito</li><li>✅ Verificar orden creada</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="highlight-box">
-                        <strong>📤 Entrega:</strong> Sube tu código a GitHub y comparte el reporte de Serenity generado.
-                    </div>
-                    <h3>📝 Tu Solución</h3>
-                    <div class="exercise-container">
-                        <div class="exercise-title">💻 Feature File:</div>
-                        <textarea class="code-input" id="finalFeature" placeholder="Feature: Proceso de compra en e-commerce&#10;&#10;  Scenario: Usuario compra un producto exitosamente&#10;    Given que el usuario está logueado&#10;    When busca el producto &quot;Zapatos Nike&quot;&#10;    And lo agrega al carrito&#10;    Then la orden debe ser creada exitosamente"></textarea>
-                    </div>
-                    <div class="exercise-container">
-                        <div class="exercise-title">💻 Step Definitions y Tasks:</div>
-                        <textarea class="code-input" id="finalCode" placeholder="// Tu implementación completa aquí&#10;// Incluye Step Definitions, Tasks, Questions y Waits de Serenity&#10;&#10;@Given(&quot;que el usuario está logueado&quot;)&#10;public void usuarioLogueado() {&#10;    actor.attemptsTo(LoginUI.withCredentials(&quot;user&quot;, &quot;pass&quot;));&#10;}"></textarea>
-                        <button class="btn btn-success" onclick="submitFinalProject()">🚀 Entregar Proyecto</button>
-                        <div class="feedback" id="finalFeedback"></div>
-                    </div>
-                    <div class="highlight-box success" id="completionMessage" style="display: none;">
-                        <h3>🎉 ¡Felicitaciones!</h3>
-                        <p>Has completado el Bootcamp de Automatización con Screenplay + Serenity</p>
-                        <div style="margin-top: 1rem;">
-                            <span class="badge unlocked">🎯 Primeros Pasos</span>
-                            <span class="badge unlocked">📝 Gherkin Master</span>
-                            <span class="badge unlocked">🎬 Screenplay Pro</span>
-                            <span class="badge unlocked">🚀 Automatizador</span>
-                        </div>
-                    </div>
-                    <div class="nav-buttons">
-                        <button class="btn btn-primary" onclick="prevModule()">← Volver al Nivel 4</button>
-                        <button class="btn btn-warning" onclick="resetProgress()">🔄 Reiniciar Bootcamp</button>
-                    </div>
-                </div>
-            </div>
-        </main>
+  <aside class="sidebar">
+    <div class="slate">
+      <div class="title-of">GUION DE ESTUDIO</div>
+      <h1>Screenplay + Serenity + Cucumber</h1>
+      <p>Automatización de pruebas en español, de cero a proyecto final.</p>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script>
-        let currentModule = 0;
-        const totalModules = 5;
-        let completedModules = new Set();
-        let userProgress = { quizzes: {}, exercises: {} };
+    <div>
+      <div class="reel"><span>AVANCE</span><span id="progressText">0%</span></div>
+      <div class="reel-track"><div class="reel-fill" id="progressBar"></div></div>
+    </div>
 
-        function generateQRCode() {
-            const currentUrl = window.location.href;
-            document.getElementById('qrcode').innerHTML = '';
-            new QRCode(document.getElementById('qrcode'), {
-                text: currentUrl, width: 128, height: 128,
-                colorDark : '#6366f1', colorLight : '#ffffff',
-                correctLevel : QRCode.CorrectLevel.H
-            });
-        }
+    <nav class="scenes" aria-label="Índice de escenas">
+      <li style="list-style:none;"><button class="scene-btn active" id="nav-0" onclick="showScene(0)"><span class="scene-num">1</span><span class="scene-label"><b>Gherkin</b><small>El lenguaje del negocio</small></span></button></li>
+      <li style="list-style:none;"><button class="scene-btn" id="nav-1" onclick="showScene(1)"><span class="scene-num">2</span><span class="scene-label"><b>Cucumber</b><small>Conectando con el código</small></span></button></li>
+      <li style="list-style:none;"><button class="scene-btn" id="nav-2" onclick="showScene(2)"><span class="scene-num">3</span><span class="scene-label"><b>Screenplay</b><small>Actores, tasks, questions</small></span></button></li>
+      <li style="list-style:none;"><button class="scene-btn" id="nav-3" onclick="showScene(3)"><span class="scene-num">4</span><span class="scene-label"><b>Serenity</b><small>Reportes y esperas</small></span></button></li>
+      <li style="list-style:none;"><button class="scene-btn" id="nav-4" onclick="showScene(4)"><span class="scene-num">★</span><span class="scene-label"><b>Proyecto final</b><small>Un flujo real de e-commerce</small></span></button></li>
+    </nav>
 
-        function showModule(index) {
-            document.querySelectorAll('.content-card').forEach(card => card.classList.remove('active'));
-            document.getElementById(`module-${index}`).classList.add('active');
-            document.querySelectorAll('.module-btn').forEach((btn, i) => {
-                btn.classList.remove('active');
-                if (i === index) btn.classList.add('active');
-            });
-            currentModule = index;
-            updateProgress();
-            setTimeout(generateQRCode, 100);
-        }
+    <div class="credits">
+      <h4>CRÉDITOS DESBLOQUEADOS</h4>
+      <div class="badge-row" id="badgesContainer">
+        <span class="badge" id="badge-1">Primeros pasos</span>
+        <span class="badge" id="badge-2">Gherkin</span>
+        <span class="badge" id="badge-3">Screenplay</span>
+        <span class="badge" id="badge-4">Automatizador/a</span>
+      </div>
+    </div>
 
-        function nextModule() { if (currentModule < totalModules - 1) showModule(currentModule + 1); }
-        function prevModule() { if (currentModule > 0) showModule(currentModule - 1); }
+    <div class="qr-box">
+      <div id="qrcode"></div>
+      <p>Escanea para retomar en tu celular</p>
+    </div>
 
-        function selectOption(element, moduleIndex, questionIndex, isCorrect) {
-            const parent = element.parentElement;
-            const options = parent.querySelectorAll('.quiz-option');
-            const feedback = document.getElementById(`feedback-${moduleIndex}-${questionIndex}`);
-            options.forEach(opt => opt.classList.remove('selected', 'correct', 'incorrect'));
-            
-            if (isCorrect) {
-                element.classList.add('correct');
-                feedback.className = 'feedback success show';
-                const msgs = ['✅ ¡Correcto! Given establece el contexto.', '✅ ¡Bien! @Given es la anotación correcta.', '✅ ¡Perfecto! performAs() es el método de una Task.', '✅ ¡Correcto! WaitUntil es la forma inteligente de esperar.'];
-                feedback.innerHTML = msgs[moduleIndex] || '✅ ¡Correcto!';
-                markQuizComplete(moduleIndex, questionIndex, true);
-            } else {
-                element.classList.add('incorrect');
-                feedback.className = 'feedback error show';
-                const msgs = ['❌ No. Given es el contexto, When es la acción.', '❌ No. @Given es para el contexto inicial.', '❌ No. El método es performAs(T actor).', '❌ Thread.sleep() es mala práctica. Usa WaitUntil.'];
-                feedback.innerHTML = msgs[moduleIndex] || '❌ Inténtalo de nuevo.';
-                markQuizComplete(moduleIndex, questionIndex, false);
-            }
-        }
+    <p id="saveStatus" style="font-size:0.75rem; color:#6f6c80; margin:0;"></p>
+  </aside>
 
-        function markQuizComplete(moduleIndex, questionIndex, correct) {
-            if (!userProgress.quizzes[moduleIndex]) userProgress.quizzes[moduleIndex] = {};
-            userProgress.quizzes[moduleIndex][questionIndex] = correct;
-            updateProgress();
-        }
+  <main>
 
-        function checkGherkin() {
-            const input = document.getElementById('gherkinExercise').value.toLowerCase();
-            const feedback = document.getElementById('gherkinFeedback');
-            if (input.includes('given') && input.includes('when') && input.includes('then')) {
-                feedback.className = 'feedback success show';
-                feedback.innerHTML = '✅ ¡Excelente! Tu escenario tiene la estructura correcta: Given-When-Then.';
-                completeExercise('gherkin');
-            } else {
-                feedback.className = 'feedback error show';
-                feedback.innerHTML = '❌ Recuerda: Todo escenario Gherkin debe tener Given, When y Then.';
-            }
-        }
+    <!-- ESCENA 1: GHERKIN -->
+    <section class="scene active" id="scene-0" aria-labelledby="h-0">
+      <div class="slugline">ESCENA 1 · INT. GHERKIN — DÍA</div>
+      <h2 id="h-0">El lenguaje del negocio</h2>
+      <p class="dek">Antes de escribir una sola línea de Java, hay que aprender a describir el comportamiento en un idioma que negocio, QA y desarrollo puedan leer sin traducir nada.</p>
 
-        function checkCucumber() {
-            const input = document.getElementById('cucumberExercise').value;
-            const feedback = document.getElementById('cucumberFeedback');
-            if (input.includes('@Then') && (input.includes('assertThat') || input.includes('should'))) {
-                feedback.className = 'feedback success show';
-                feedback.innerHTML = '✅ ¡Bien! Tu step definition está correctamente anotado y validado.';
-                completeExercise('cucumber');
-            } else {
-                feedback.className = 'feedback error show';
-                feedback.innerHTML = '❌ Asegúrate de usar la anotación @Then y validar con assertThat() o should().';
-            }
-        }
+      <div class="video-grid">
+        <div>
+          <div class="video-frame"><iframe src="https://www.youtube.com/embed/O6Hd0Xsu3OU" title="Qué es Gherkin" allowfullscreen></iframe></div>
+          <div class="video-cap"><b>¿Qué es Gherkin?</b>Primer contacto con el lenguaje, en español.</div>
+        </div>
+        <div>
+          <div class="video-frame"><iframe src="https://www.youtube.com/embed/Ea-h0OTz-r4" title="Introducción a Gherkin" allowfullscreen></iframe></div>
+          <div class="video-cap"><b>Introducción a Gherkin (Parte 1)</b>El camino hacia Cucumber, explicado paso a paso.</div>
+        </div>
+      </div>
 
-        function checkScreenplay() {
-            const input = document.getElementById('screenplayExercise').value;
-            const feedback = document.getElementById('screenplayFeedback');
-            if (input.includes('performAs') && input.includes('actor.attemptsTo')) {
-                feedback.className = 'feedback success show';
-                feedback.innerHTML = '✅ ¡Perfecto! Tu Task implementa correctamente performAs() con actor.attemptsTo().';
-                completeExercise('screenplay');
-            } else {
-                feedback.className = 'feedback error show';
-                feedback.innerHTML = '❌ Recuerda: Una Task debe implementar performAs() y usar actor.attemptsTo().';
-            }
-        }
+      <div class="page">
+        <div class="direction"><strong>Por qué importa:</strong> Gherkin no existe para que el código se vea bonito. Existe para que un Product Owner, un QA y un desarrollador lean el mismo archivo .feature y entiendan exactamente lo mismo.</div>
 
-        function checkSerenity() {
-            const input = document.getElementById('serenityExercise').value;
-            const feedback = document.getElementById('serenityFeedback');
-            if (!input.includes('Thread.sleep') && input.includes('WaitUntil')) {
-                feedback.className = 'feedback success show';
-                feedback.innerHTML = '✅ ¡Excelente! Eliminaste Thread.sleep() y usaste WaitUntil de Serenity.';
-                completeExercise('serenity');
-            } else if (input.includes('Thread.sleep')) {
-                feedback.className = 'feedback error show';
-                feedback.innerHTML = '❌ Todavía hay Thread.sleep(). Reemplázalo con WaitUntil.the(element, isClickable()).';
-            } else {
-                feedback.className = 'feedback success show';
-                feedback.innerHTML = '✅ ¡Bien! Ya no usas Thread.sleep(). Asegúrate de usar WaitUntil.the().';
-                completeExercise('serenity');
-            }
-        }
+        <h3>Estructura de un escenario</h3>
+        <div class="code-block"><span class="cm"># Ejemplo de escenario Gherkin</span>
+<span class="kw">Feature:</span> Login de usuarios
+  <span class="kw">Scenario:</span> Usuario inicia sesión correctamente
+    <span class="kw">Given</span> que estoy en la página de login
+    <span class="kw">When</span> ingreso mis credenciales válidas
+    <span class="kw">Then</span> debo ver el dashboard principal</div>
 
-        function completeExercise(exerciseName) {
-            userProgress.exercises[exerciseName] = true;
-            updateProgress();
-            checkBadges();
-        }
+        <div class="direction ok"><strong>Regla de oro:</strong> Given = contexto · When = acción · Then = resultado esperado.</div>
 
-        function submitFinalProject() {
-            const feature = document.getElementById('finalFeature').value;
-            const code = document.getElementById('finalCode').value;
-            const feedback = document.getElementById('finalFeedback');
-            const completionMessage = document.getElementById('completionMessage');
-            
-            if (feature.length > 50 && code.length > 100) {
-                feedback.className = 'feedback success show';
-                feedback.innerHTML = '🎉 ¡Felicitaciones! Has completado el bootcamp. 🏆 Desbloqueaste la insignia: "Automatizador Screenplay"';
-                completedModules.add(4);
-                updateProgress();
-                unlockBadge('badge-4');
-                completionMessage.style.display = 'block';
-                completionMessage.scrollIntoView({ behavior: 'smooth' });
-            } else {
-                feedback.className = 'feedback error show';
-                feedback.innerHTML = '❌ Tu solución parece incompleta. Agrega más detalles al feature file y al código.';
-            }
-        }
+        <h3>Ejercicio: escribe tu propio escenario</h3>
+        <p>Redacta un escenario Gherkin para: "un usuario agrega un producto al carrito".</p>
+        <div class="drill">
+          <div class="drill-title">Tu escenario</div>
+          <textarea id="in-gherkin" aria-label="Escenario Gherkin" placeholder="Feature: Agregar producto al carrito
 
-        function updateProgress() {
-            const totalQuizzes = 4;
-            const totalExercises = 4;
-            let completedQuizzes = 0;
-            let completedExercises = 0;
-            
-            Object.values(userProgress.quizzes).forEach(module => {
-                Object.values(module).forEach(correct => { if (correct) completedQuizzes++; });
-            });
-            completedExercises = Object.keys(userProgress.exercises).length;
-            
-            const totalTasks = totalQuizzes + totalExercises + totalModules;
-            const completedTasks = completedQuizzes + completedExercises + completedModules.size;
-            const percentage = Math.round((completedTasks / totalTasks) * 100);
-            
-            document.getElementById('progressBar').style.width = percentage + '%';
-            document.getElementById('progressText').textContent = percentage + '%';
-            document.getElementById('finalScore').textContent = percentage + '%';
-        }
+Scenario: Usuario agrega producto al carrito exitosamente
+  Given que el usuario está en la página de productos
+  When selecciona un producto y hace clic en 'Agregar al carrito'
+  Then el producto debe aparecer en el carrito"></textarea>
+          <button class="action" onclick="checkGherkin()">Verificar escenario</button>
+          <div class="fb" id="fb-gherkin"></div>
+        </div>
 
-        function checkBadges() {
-            if (userProgress.exercises.gherkin) unlockBadge('badge-2');
-            if (userProgress.exercises.screenplay && userProgress.exercises.serenity) unlockBadge('badge-3');
-            if (completedModules.size >= 1 || Object.keys(userProgress.quizzes).length >= 2) unlockBadge('badge-1');
-        }
+        <h3>Ponte a prueba</h3>
+        <div class="quiz" data-quiz="0-0">
+          <p class="q">1. ¿Qué palabra clave define el contexto inicial de un escenario?</p>
+          <div class="opts">
+            <button class="opt" data-correct="false">When</button>
+            <button class="opt" data-correct="false">Then</button>
+            <button class="opt" data-correct="true">Given</button>
+            <button class="opt" data-correct="false">And</button>
+          </div>
+          <div class="fb" id="fb-0-0"></div>
+        </div>
+        <div class="quiz" data-quiz="0-1">
+          <p class="q">2. ¿Qué extensión de archivo usan los escenarios Gherkin?</p>
+          <div class="opts">
+            <button class="opt" data-correct="false">.gherkin</button>
+            <button class="opt" data-correct="true">.feature</button>
+            <button class="opt" data-correct="false">.scenario</button>
+          </div>
+          <div class="fb" id="fb-0-1"></div>
+        </div>
 
-        function unlockBadge(badgeId) {
-            const badge = document.getElementById(badgeId);
-            if (badge && badge.classList.contains('locked')) {
-                badge.classList.remove('locked');
-                badge.classList.add('unlocked');
-                showNotification(`🏆 ¡Insignia desbloqueada! ${badge.textContent}`);
-            }
-        }
+        <div class="wrap-btns"><button class="action" onclick="nextScene()">Siguiente escena →</button></div>
+      </div>
+    </section>
 
-        function showNotification(message) {
-            const notif = document.createElement('div');
-            notif.style.cssText = `position: fixed; top: 20px; right: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1.5rem 2rem; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 10000; animation: slideIn 0.5s; font-weight: bold;`;
-            notif.textContent = message;
-            document.body.appendChild(notif);
-            setTimeout(() => { notif.remove(); }, 3000);
-        }
+    <!-- ESCENA 2: CUCUMBER -->
+    <section class="scene" id="scene-1" aria-labelledby="h-1">
+      <div class="slugline">ESCENA 2 · INT. CUCUMBER — DÍA</div>
+      <h2 id="h-1">Conectando Gherkin con el código</h2>
+      <p class="dek">Cucumber es el intérprete: toma cada línea del .feature y la conecta con un método Java real llamado step definition.</p>
 
-        function resetProgress() {
-            if (confirm('¿Estás seguro de reiniciar todo tu progreso?')) {
-                currentModule = 0;
-                completedModules.clear();
-                userProgress = { quizzes: {}, exercises: {} };
-                document.querySelectorAll('.content-card').forEach(card => card.classList.remove('active'));
-                document.getElementById('module-0').classList.add('active');
-                document.querySelectorAll('.module-btn').forEach((btn, i) => {
-                    btn.classList.remove('active', 'completed');
-                    if (i === 0) btn.classList.add('active');
-                });
-                document.querySelectorAll('.badge').forEach(badge => { badge.classList.add('locked'); badge.classList.remove('unlocked'); });
-                document.querySelectorAll('.feedback').forEach(fb => fb.classList.remove('show'));
-                document.getElementById('completionMessage').style.display = 'none';
-                updateProgress();
-                showModule(0);
-                showNotification('🔄 Progreso reiniciado');
-            }
-        }
+      <div class="video-frame"><iframe src="https://www.youtube.com/embed/vL-jj5t8EDs" title="Tutorial de Cucumber con Java" allowfullscreen></iframe></div>
+      <p class="video-cap" style="color:#a9a6b8; margin-bottom:1.5rem;"><b style="color:var(--paper);">Tutorial de Cucumber con Java — Capítulo 1: Hola mundo</b>Primer capítulo de la serie, en español. El mismo canal continúa con capítulos 2, 3... busca su nombre exacto en YouTube para seguir la serie completa.</p>
 
-        window.onload = function() { generateQRCode(); updateProgress(); };
-        window.addEventListener('popstate', generateQRCode);
-    </script>
+      <div class="page">
+        <h3>Anatomía de un step definition</h3>
+        <div class="code-block"><span class="an">@Given</span>(<span class="str">"que estoy en la página de login"</span>)
+<span class="kw">public void</span> estoyEnLogin() {
+    actor.attemptsTo(Open.browserOn().the(LoginPage.class));
+}
+
+<span class="an">@Then</span>(<span class="str">"debo ver el dashboard principal"</span>)
+<span class="kw">public void</span> deboVerDashboard() {
+    assertThat(actor.asksFor(Text.of(DASHBOARD_TITLE))).isEqualTo("Dashboard");
+}</div>
+
+        <h3>Reto: completa el step definition</h3>
+        <div class="drill">
+          <div class="drill-title">Tu código</div>
+          <textarea id="in-cucumber" aria-label="Step definition en Java" placeholder="@Then(&quot;debo ver el dashboard principal&quot;)
+public void deboVerDashboard() {
+    // Pista: usa actor.asksFor() y assertThat()
+}"></textarea>
+          <button class="action" onclick="checkCucumber()">Ejecutar test</button>
+          <div class="fb" id="fb-cucumber"></div>
+        </div>
+
+        <h3>Ponte a prueba</h3>
+        <div class="quiz" data-quiz="1-0">
+          <p class="q">1. ¿Qué anotación corresponde a un paso "Given"?</p>
+          <div class="opts">
+            <button class="opt" data-correct="false">@When</button>
+            <button class="opt" data-correct="true">@Given</button>
+            <button class="opt" data-correct="false">@Then</button>
+          </div>
+          <div class="fb" id="fb-1-0"></div>
+        </div>
+        <div class="quiz" data-quiz="1-1">
+          <p class="q">2. ¿Qué archivo relaciona el texto de un Gherkin con un método Java?</p>
+          <div class="opts">
+            <button class="opt" data-correct="false">El archivo .feature</button>
+            <button class="opt" data-correct="true">El step definition (clase de steps)</button>
+            <button class="opt" data-correct="false">El pom.xml</button>
+          </div>
+          <div class="fb" id="fb-1-1"></div>
+        </div>
+
+        <div class="wrap-btns">
+          <button class="action secondary" onclick="prevScene()">← Escena anterior</button>
+          <button class="action" onclick="nextScene()">Siguiente escena →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ESCENA 3: SCREENPLAY -->
+    <section class="scene" id="scene-2" aria-labelledby="h-2">
+      <div class="slugline">ESCENA 3 · INT. SCREENPLAY — NOCHE</div>
+      <h2 id="h-2">El patrón dorado: actores, tasks y questions</h2>
+      <p class="dek">Screenplay modela cada prueba como una obra: un actor con habilidades, que intenta tareas y luego pregunta cosas sobre el resultado.</p>
+
+      <div class="video-frame"><iframe src="https://www.youtube.com/embed/videoseries?list=PLeo6Q1inqlOcct4kW0L3HQJubwZqJVLd7" title="Curso Serenity BDD Screenplay Web en Español" allowfullscreen></iframe></div>
+      <p class="video-cap" style="color:#a9a6b8; margin-bottom:1.5rem;"><b style="color:var(--paper);">Curso Serenity BDD / Screenplay Web en Español</b>Playlist completa: configuración, tasks, questions y assertions con el patrón Screenplay.</p>
+
+      <div class="page">
+        <div class="direction"><strong>Recurso extra:</strong> si además necesitas probar APIs, busca en YouTube "Curso Serenity BDD | Screenplay Rest en Español", del mismo autor.</div>
+
+        <h3>Los 4 pilares de Screenplay</h3>
+        <div class="pillars">
+          <div class="pillar"><span class="tag">ACTOR</span><h4>El protagonista</h4><p>Quien ejecuta las acciones dentro de la prueba.</p><code>Actor.called("Juan")</code></div>
+          <div class="pillar"><span class="tag">ABILITY</span><h4>La habilidad</h4><p>Lo que el actor puede hacer (navegar, llamar una API...).</p><code>can(BrowseTheWeb.with(driver))</code></div>
+          <div class="pillar"><span class="tag">TASK</span><h4>La tarea</h4><p>Lo que el actor quiere lograr, paso a paso.</p><code>actor.attemptsTo(Login.with(user, pass))</code></div>
+          <div class="pillar"><span class="tag">QUESTION</span><h4>La pregunta</h4><p>Lo que el actor quiere saber, para poder afirmarlo.</p><code>actor.asksFor(Title.isEqualTo("Dashboard"))</code></div>
+        </div>
+
+        <h3>Reto: crea una task de login</h3>
+        <div class="drill">
+          <div class="drill-title">Tu Task</div>
+          <textarea id="in-screenplay" aria-label="Task de Screenplay en Java" placeholder="public class LoginUI implements Task {
+    private String username, password;
+    public LoginUI(String user, String pass) { ... }
+
+    @Override
+    public <T extends Actor> void performAs(T actor) {
+        // 1. actor.attemptsTo(Enter.theValue(username).into(USERNAME_FIELD));
+        // 2. actor.attemptsTo(Enter.theValue(password).into(PASSWORD_FIELD));
+        // 3. actor.attemptsTo(Click.on(LOGIN_BUTTON));
+    }
+}"></textarea>
+          <button class="action" onclick="checkScreenplay()">Validar task</button>
+          <div class="fb" id="fb-screenplay"></div>
+        </div>
+
+        <h3>Ponte a prueba</h3>
+        <div class="quiz" data-quiz="2-0">
+          <p class="q">1. ¿Qué método debe implementar una Task?</p>
+          <div class="opts">
+            <button class="opt" data-correct="false">execute()</button>
+            <button class="opt" data-correct="true">performAs()</button>
+            <button class="opt" data-correct="false">run()</button>
+          </div>
+          <div class="fb" id="fb-2-0"></div>
+        </div>
+        <div class="quiz" data-quiz="2-1">
+          <p class="q">2. ¿Qué elemento usa el actor para averiguar algo del sistema?</p>
+          <div class="opts">
+            <button class="opt" data-correct="false">Una Task</button>
+            <button class="opt" data-correct="false">Una Ability</button>
+            <button class="opt" data-correct="true">Una Question</button>
+          </div>
+          <div class="fb" id="fb-2-1"></div>
+        </div>
+
+        <div class="wrap-btns">
+          <button class="action secondary" onclick="prevScene()">← Escena anterior</button>
+          <button class="action" onclick="nextScene()">Siguiente escena →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ESCENA 4: SERENITY -->
+    <section class="scene" id="scene-3" aria-labelledby="h-3">
+      <div class="slugline">ESCENA 4 · INT. SERENITY — AMANECER</div>
+      <h2 id="h-3">De especificaciones ejecutables a living documentation</h2>
+      <p class="dek">Serenity toma cada escenario y lo convierte en un reporte legible por cualquiera del equipo, no solo por quien escribió la prueba.</p>
+
+      <div class="video-grid">
+        <div>
+          <div class="video-frame"><iframe src="https://www.youtube.com/embed/d1SHfKGlu7M" title="Reportes en Serenity" allowfullscreen></iframe></div>
+          <div class="video-cap"><b>Serenity BDD 3 de 3 — Reportes en Serenity</b>Cómo configurar y generar reportes, paso a paso.</div>
+        </div>
+        <div>
+          <div class="video-frame"><iframe src="https://www.youtube.com/embed/_IlqXbq4qG4" title="Reporte general de Serenity BDD" allowfullscreen></iframe></div>
+          <div class="video-cap"><b>Reporte general de Serenity BDD</b>Cómo generar e interpretar el reporte completo.</div>
+        </div>
+      </div>
+
+      <div class="page">
+        <div class="direction warn"><strong>Prohibido:</strong> usar <code>Thread.sleep()</code> en tus pruebas. Es taparle los ojos al test en lugar de enseñarle a esperar bien.</div>
+
+        <h3>Esperas inteligentes</h3>
+        <div class="code-block"><span class="cm">// ❌ Mal</span>
+Thread.sleep(5000);
+
+<span class="cm">// ✅ Bien</span>
+actor.attemptsTo(WaitUntil.the(LOGIN_BUTTON, isClickable()));</div>
+
+        <h3>Reto: corrige el test</h3>
+        <div class="drill">
+          <div class="drill-title">Código a corregir</div>
+          <textarea id="in-serenity" aria-label="Test de Serenity a corregir" placeholder="@Test
+public void testLogin() {
+    actor.attemptsTo(Open.browserOn(LoginPage.class));
+    Thread.sleep(2000); // <-- ¡corrige esto!
+    actor.attemptsTo(Enter.theValue(&quot;user&quot;).into(USERNAME));
+    // ... completa con WaitUntil
+}"></textarea>
+          <button class="action" onclick="checkSerenity()">Corregir test</button>
+          <div class="fb" id="fb-serenity"></div>
+        </div>
+
+        <h3>Ponte a prueba</h3>
+        <div class="quiz" data-quiz="3-0">
+          <p class="q">1. ¿Cuál es la forma correcta de esperar un elemento?</p>
+          <div class="opts">
+            <button class="opt" data-correct="false">Thread.sleep(5000)</button>
+            <button class="opt" data-correct="true">WaitUntil.the(elemento, isClickable())</button>
+            <button class="opt" data-correct="false">waitForElement()</button>
+          </div>
+          <div class="fb" id="fb-3-0"></div>
+        </div>
+        <div class="quiz" data-quiz="3-1">
+          <p class="q">2. ¿Qué representan principalmente los reportes de Serenity?</p>
+          <div class="opts">
+            <button class="opt" data-correct="false">Solo un log de errores técnicos</button>
+            <button class="opt" data-correct="true">Living documentation: qué prueba y qué hace la app</button>
+            <button class="opt" data-correct="false">Un backup del código fuente</button>
+          </div>
+          <div class="fb" id="fb-3-1"></div>
+        </div>
+
+        <div class="wrap-btns">
+          <button class="action secondary" onclick="prevScene()">← Escena anterior</button>
+          <button class="action" onclick="nextScene()">Ir al proyecto final →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ESCENA 5: PROYECTO FINAL -->
+    <section class="scene" id="scene-4" aria-labelledby="h-4">
+      <div class="slugline">ESCENA 5 · INT. ESTRENO — DÍA</div>
+      <h2 id="h-4">Proyecto final: el estreno</h2>
+      <p class="dek">Todo lo que ensayaste en las escenas anteriores se junta en un solo flujo real de e-commerce.</p>
+
+      <div class="stat-row">
+        <div class="stat"><b id="statScenes">0/5</b><span>Escenas completadas</span></div>
+        <div class="stat"><b id="statExercises">0/4</b><span>Ejercicios resueltos</span></div>
+        <div class="stat"><b id="statProgress">0%</b><span>Avance total</span></div>
+      </div>
+
+      <div class="page">
+        <h3>El reto</h3>
+        <p>Automatiza: <strong>Login → Buscar producto → Agregar al carrito → Checkout</strong></p>
+        <div class="pillars">
+          <div class="pillar"><span class="tag">OBLIGATORIO</span><h4>Flujo completo</h4>
+            <ul style="padding-left:1.2rem; margin-top:0.6rem;"><li>Login de usuario</li><li>Búsqueda de producto</li><li>Agregar al carrito</li><li>Proceso de checkout</li></ul>
+          </div>
+          <div class="pillar"><span class="tag">BONUS</span><h4>Validaciones</h4>
+            <ul style="padding-left:1.2rem; margin-top:0.6rem;"><li>Verificar login exitoso</li><li>Validar producto encontrado</li><li>Confirmar agregado al carrito</li><li>Verificar orden creada</li></ul>
+          </div>
+        </div>
+        <div class="direction"><strong>Entrega:</strong> sube tu código a GitHub y adjunta el reporte de Serenity generado.</div>
+
+        <h3>Tu solución</h3>
+        <div class="drill">
+          <div class="drill-title">Feature file</div>
+          <textarea id="in-final-feature" aria-label="Feature file final" placeholder="Feature: Proceso de compra en e-commerce
+
+  Scenario: Usuario compra un producto exitosamente
+    Given que el usuario está logueado
+    When busca el producto &quot;Zapatos Nike&quot;
+    And lo agrega al carrito
+    Then la orden debe ser creada exitosamente"></textarea>
+        </div>
+        <div class="drill">
+          <div class="drill-title">Step definitions y tasks</div>
+          <textarea id="in-final-code" aria-label="Código final" placeholder="// Incluye Step Definitions, Tasks, Questions y esperas de Serenity
+
+@Given(&quot;que el usuario está logueado&quot;)
+public void usuarioLogueado() {
+    actor.attemptsTo(LoginUI.withCredentials(&quot;user&quot;, &quot;pass&quot;));
+}"></textarea>
+          <button class="action" onclick="submitFinal()">Entregar proyecto</button>
+          <div class="fb" id="fb-final"></div>
+        </div>
+
+        <div class="direction ok" id="completion" style="display:none;">
+          <strong>¡Felicitaciones!</strong> Completaste el guion de Screenplay + Serenity + Cucumber. Ya puedes automatizar un flujo real de principio a fin.
+        </div>
+
+        <div class="wrap-btns">
+          <button class="action secondary" onclick="prevScene()">← Volver a Serenity</button>
+          <button class="action danger" onclick="resetProgress()">Reiniciar avance</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+const TOTAL_SCENES = 5;
+const TOTAL_QUIZZES = 8;   // 2 per scene x 4 scored scenes
+const TOTAL_EXERCISES = 4;
+
+let state = {
+  current: 0,
+  completedScenes: [],
+  quizzes: {},      // "0-0": true/false
+  exercises: {},     // gherkin/cucumber/screenplay/serenity: true
+  finalDone: false,
+  texts: {}
+};
+
+const STORAGE_KEY = 'screenplay-bootcamp-progress';
+
+async function loadState(){
+  try{
+    const res = await window.storage.get(STORAGE_KEY, false);
+    if(res && res.value){
+      const saved = JSON.parse(res.value);
+      state = Object.assign(state, saved);
+    }
+  }catch(e){
+    // no previous progress saved yet — that's fine
+  }
+  applyStateToUI();
+}
+
+async function saveState(){
+  try{
+    await window.storage.set(STORAGE_KEY, JSON.stringify(state), false);
+    flashSaveStatus('Guardado');
+  }catch(e){
+    flashSaveStatus('No se pudo guardar');
+  }
+}
+
+let saveStatusTimer;
+function flashSaveStatus(msg){
+  const el = document.getElementById('saveStatus');
+  el.textContent = msg;
+  clearTimeout(saveStatusTimer);
+  saveStatusTimer = setTimeout(()=>{ el.textContent=''; }, 2000);
+}
+
+function applyStateToUI(){
+  showScene(state.current, false);
+  Object.keys(state.texts||{}).forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.value = state.texts[id];
+  });
+  Object.keys(state.quizzes||{}).forEach(key=>{
+    const wasCorrect = state.quizzes[key];
+    const quizEl = document.querySelector(`[data-quiz="${key}"]`);
+    if(!quizEl) return;
+    const [sceneIdx, qIdx] = key.split('-');
+    const feedback = document.getElementById(`fb-${sceneIdx}-${qIdx}`);
+    quizEl.querySelectorAll('.opt').forEach(btn=>{
+      btn.disabled = true;
+      if(btn.dataset.correct === 'true') btn.classList.add('correct');
+    });
+    if(feedback){
+      feedback.className = 'fb show ' + (wasCorrect ? 'ok' : 'bad');
+      feedback.textContent = wasCorrect ? 'Ya respondiste correctamente.' : 'Respondiste esto antes — revisa la opción marcada en verde.';
+    }
+  });
+  Object.keys(state.exercises||{}).forEach(name=>{
+    if(state.exercises[name]) markBadgesFromExercise(name, false);
+  });
+  if(state.finalDone){
+    document.getElementById('completion').style.display = 'block';
+  }
+  refreshProgress();
+}
+
+document.querySelectorAll('.quiz').forEach(quiz=>{
+  const key = quiz.dataset.quiz;
+  quiz.querySelectorAll('.opt').forEach(btn=>{
+    btn.addEventListener('click', ()=> answerQuiz(quiz, key, btn));
+  });
+});
+
+function answerQuiz(quizEl, key, btn){
+  const [sceneIdx, qIdx] = key.split('-');
+  const feedback = document.getElementById(`fb-${sceneIdx}-${qIdx}`);
+  const isCorrect = btn.dataset.correct === 'true';
+
+  quizEl.querySelectorAll('.opt').forEach(o=>{
+    o.disabled = true;
+    if(o.dataset.correct === 'true') o.classList.add('correct');
+  });
+  if(!isCorrect) btn.classList.add('incorrect');
+
+  feedback.className = 'fb show ' + (isCorrect ? 'ok' : 'bad');
+  feedback.textContent = isCorrect
+    ? '✓ Correcto.'
+    : '✗ No era esa — la respuesta correcta quedó marcada en verde.';
+
+  state.quizzes[key] = isCorrect;
+  if(Object.keys(state.quizzes).length === 1) unlockBadge('badge-1');
+  refreshProgress();
+  saveState();
+}
+
+function showScene(index, save=true){
+  document.querySelectorAll('.scene').forEach(s=>s.classList.remove('active'));
+  document.getElementById(`scene-${index}`).classList.add('active');
+  document.querySelectorAll('.scene-btn').forEach((btn,i)=>{
+    btn.classList.toggle('active', i===index);
+  });
+  state.current = index;
+  refreshProgress();
+  setTimeout(renderQR, 50);
+  if(save) saveState();
+}
+function nextScene(){
+  if(!state.completedScenes.includes(state.current)) state.completedScenes.push(state.current);
+  if(state.current < TOTAL_SCENES-1) showScene(state.current+1);
+  else refreshProgress();
+}
+function prevScene(){ if(state.current>0) showScene(state.current-1); }
+
+function checkGherkin(){
+  const val = document.getElementById('in-gherkin').value.toLowerCase();
+  const fb = document.getElementById('fb-gherkin');
+  if(val.includes('given') && val.includes('when') && val.includes('then')){
+    fb.className='fb show ok'; fb.textContent='✓ Tu escenario tiene la estructura correcta: Given-When-Then.';
+    completeExercise('gherkin');
+  }else{
+    fb.className='fb show bad'; fb.textContent='✗ Todo escenario Gherkin necesita Given, When y Then.';
+  }
+  saveText('in-gherkin');
+}
+function checkCucumber(){
+  const val = document.getElementById('in-cucumber').value;
+  const fb = document.getElementById('fb-cucumber');
+  if(val.includes('@Then') && (val.includes('assertThat') || val.toLowerCase().includes('should'))){
+    fb.className='fb show ok'; fb.textContent='✓ Tu step definition está anotado y valida el resultado.';
+    completeExercise('cucumber');
+  }else{
+    fb.className='fb show bad'; fb.textContent='✗ Usa la anotación @Then y valida con assertThat() o should().';
+  }
+  saveText('in-cucumber');
+}
+function checkScreenplay(){
+  const val = document.getElementById('in-screenplay').value;
+  const fb = document.getElementById('fb-screenplay');
+  if(val.includes('performAs') && val.includes('actor.attemptsTo')){
+    fb.className='fb show ok'; fb.textContent='✓ Tu Task implementa performAs() y usa actor.attemptsTo().';
+    completeExercise('screenplay');
+  }else{
+    fb.className='fb show bad'; fb.textContent='✗ Una Task debe implementar performAs() y usar actor.attemptsTo().';
+  }
+  saveText('in-screenplay');
+}
+function checkSerenity(){
+  const val = document.getElementById('in-serenity').value;
+  const fb = document.getElementById('fb-serenity');
+  if(val.includes('Thread.sleep')){
+    fb.className='fb show bad'; fb.textContent='✗ Todavía hay Thread.sleep(). Reemplázalo por WaitUntil.the(elemento, isClickable()).';
+  }else if(val.includes('WaitUntil')){
+    fb.className='fb show ok'; fb.textContent='✓ Eliminaste Thread.sleep() y usaste WaitUntil de Serenity.';
+    completeExercise('serenity');
+  }else{
+    fb.className='fb show bad'; fb.textContent='✗ Agrega una espera con WaitUntil.the(elemento, isClickable()).';
+  }
+  saveText('in-serenity');
+}
+
+function completeExercise(name){
+  state.exercises[name] = true;
+  markBadgesFromExercise(name, true);
+  refreshProgress();
+  saveState();
+}
+function markBadgesFromExercise(name, notify){
+  if(name==='gherkin') unlockBadge('badge-2', notify);
+  if(state.exercises.screenplay && state.exercises.serenity) unlockBadge('badge-3', notify);
+}
+
+function submitFinal(){
+  const feature = document.getElementById('in-final-feature').value;
+  const code = document.getElementById('in-final-code').value;
+  const fb = document.getElementById('fb-final');
+  if(feature.length>50 && code.length>100){
+    fb.className='fb show ok'; fb.textContent='🎉 ¡Proyecto entregado! Desbloqueaste "Automatizador/a".';
+    state.finalDone = true;
+    if(!state.completedScenes.includes(4)) state.completedScenes.push(4);
+    document.getElementById('completion').style.display='block';
+    document.getElementById('completion').scrollIntoView({behavior:'smooth'});
+    unlockBadge('badge-4');
+    refreshProgress();
+  }else{
+    fb.className='fb show bad'; fb.textContent='✗ Tu solución parece incompleta. Añade más detalle al feature y al código.';
+  }
+  saveText('in-final-feature'); saveText('in-final-code');
+  saveState();
+}
+
+function saveText(id){
+  const el = document.getElementById(id);
+  if(el){ state.texts[id]=el.value; saveState(); }
+}
+document.querySelectorAll('textarea').forEach(t=>{
+  t.addEventListener('blur', ()=> saveText(t.id));
+});
+
+function unlockBadge(id, notify=true){
+  const el = document.getElementById(id);
+  if(el && !el.classList.contains('unlocked')){
+    el.classList.add('unlocked');
+    if(notify) toast(`Crédito desbloqueado: ${el.textContent}`);
+  }
+}
+function toast(msg){
+  const t = document.createElement('div');
+  t.className='toast'; t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(), 2800);
+}
+
+function refreshProgress(){
+  const quizCount = Object.values(state.quizzes).filter(Boolean).length;
+  const exCount = Object.keys(state.exercises).length;
+  const sceneCount = state.completedScenes.length;
+  const totalTasks = TOTAL_QUIZZES + TOTAL_EXERCISES + TOTAL_SCENES;
+  const done = quizCount + exCount + sceneCount;
+  const pct = Math.round((done/totalTasks)*100);
+
+  document.getElementById('progressBar').style.width = pct+'%';
+  document.getElementById('progressText').textContent = pct+'%';
+  document.getElementById('statScenes').textContent = `${sceneCount}/${TOTAL_SCENES}`;
+  document.getElementById('statExercises').textContent = `${exCount}/${TOTAL_EXERCISES}`;
+  document.getElementById('statProgress').textContent = pct+'%';
+
+  document.querySelectorAll('.scene-btn').forEach((btn,i)=>{
+    btn.classList.toggle('done', state.completedScenes.includes(i));
+  });
+}
+
+function renderQR(){
+  const box = document.getElementById('qrcode');
+  box.innerHTML='';
+  try{
+    new QRCode(box, { text: window.location.href, width:110, height:110, colorDark:'#E8A33D', colorLight:'#101016', correctLevel: QRCode.CorrectLevel.H });
+  }catch(e){ /* QR lib may not load offline — non critical */ }
+}
+
+async function resetProgress(){
+  if(!confirm('¿Reiniciar todo tu avance guardado?')) return;
+  state = { current:0, completedScenes:[], quizzes:{}, exercises:{}, finalDone:false, texts:{} };
+  document.querySelectorAll('textarea').forEach(t=>t.value='');
+  document.querySelectorAll('.opt').forEach(o=>{ o.disabled=false; o.classList.remove('correct','incorrect'); });
+  document.querySelectorAll('.fb').forEach(f=>{ f.classList.remove('show'); f.textContent=''; });
+  document.querySelectorAll('.badge').forEach(b=>b.classList.remove('unlocked'));
+  document.getElementById('completion').style.display='none';
+  showScene(0, false);
+  refreshProgress();
+  await saveState();
+  toast('Avance reiniciado');
+}
+
+loadState();
+</script>
 </body>
 </html>
