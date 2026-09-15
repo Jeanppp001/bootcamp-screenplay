@@ -300,6 +300,30 @@ Scenario: Usuario agrega producto al carrito exitosamente
           <div class="fb" id="fb-0-1"></div>
         </div>
 
+        <h3>Scenario Outline: cuando un caso no basta</h3>
+        <p>En un proyecto real casi nunca pruebas un solo dato. Necesitas probar el mismo flujo con varios usuarios, productos o combinaciones. Para eso existe <strong>Scenario Outline</strong> + <strong>Examples</strong>: el mismo escenario se ejecuta una vez por cada fila de la tabla.</p>
+        <div class="code-block"><span class="kw">Scenario Outline:</span> Login con distintos roles
+    <span class="kw">Given</span> que estoy en la página de login
+    <span class="kw">When</span> ingreso el usuario <span class="str">"&lt;usuario&gt;"</span> y la contraseña <span class="str">"&lt;clave&gt;"</span>
+    <span class="kw">Then</span> debo ver el rol <span class="str">"&lt;rol_esperado&gt;"</span>
+
+  <span class="kw">Examples:</span>
+    | usuario | clave    | rol_esperado |
+    | admin   | admin123 | Administrador |
+    | juan    | juan123  | Vendedor      |
+    | ana     | ana123   | Solo lectura  |</div>
+        <div class="direction"><strong>Por qué importa:</strong> sin Scenario Outline terminas copiando y pegando el mismo escenario 5 veces con un solo dato distinto — un dolor de cabeza para mantener. Con una tabla de Examples, agregar un caso nuevo es agregar una fila, no un escenario completo.</div>
+
+        <div class="quiz" data-quiz="0-2">
+          <p class="q">3. Si necesitas probar el mismo login con 5 combinaciones de usuario y clave, ¿qué deberías usar?</p>
+          <div class="opts">
+            <button class="opt" data-correct="false">Copiar el Scenario 5 veces</button>
+            <button class="opt" data-correct="true">Un Scenario Outline con una tabla de Examples</button>
+            <button class="opt" data-correct="false">Un comentario explicando los 5 casos</button>
+          </div>
+          <div class="fb" id="fb-0-2"></div>
+        </div>
+
         <div class="wrap-btns"><button class="action" onclick="nextScene()">Siguiente escena →</button></div>
       </div>
     </section>
@@ -354,6 +378,38 @@ public void deboVerDashboard() {
             <button class="opt" data-correct="false">El pom.xml</button>
           </div>
           <div class="fb" id="fb-1-1"></div>
+        </div>
+
+        <h3>Hooks: preparar y limpiar el escenario</h3>
+        <p>Todo proyecto real necesita hacer algo antes de cada escenario (abrir el navegador, loguearse) y algo después (cerrar el navegador, limpiar datos). Para eso existen los <strong>Hooks</strong>.</p>
+        <div class="code-block"><span class="an">@Before</span>
+<span class="kw">public void</span> setUp() {
+    <span class="cm">// se ejecuta antes de CADA escenario</span>
+    actor = Actor.named(<span class="str">"Ana"</span>).whoCan(BrowseTheWeb.with(driver));
+}
+
+<span class="an">@After</span>
+<span class="kw">public void</span> tearDown() {
+    <span class="cm">// se ejecuta después de CADA escenario, incluso si falló</span>
+    driver.quit();
+}</div>
+
+        <h3>Tags: eligiendo qué correr y cuándo</h3>
+        <p>No siempre quieres correr toda la suite. Antes de un despliegue urgente corres solo el humo (<code>@smoke</code>); en el pipeline nocturno corres todo (<code>@regression</code>). Los tags te dejan filtrar sin tocar código.</p>
+        <div class="code-block"><span class="an">@smoke @login</span>
+<span class="kw">Scenario:</span> Login con credenciales válidas
+  <span class="kw">Given</span> que estoy en la página de login
+  ...</div>
+        <div class="direction ok"><strong>En la práctica:</strong> ejecutas <code>mvn test -Dcucumber.filter.tags="@smoke"</code> y Cucumber corre solo los escenarios marcados, ideal para validaciones rápidas antes de un deploy.</div>
+
+        <div class="quiz" data-quiz="1-2">
+          <p class="q">3. Quieres cerrar el navegador después de cada escenario, incluso si falló. ¿Qué usas?</p>
+          <div class="opts">
+            <button class="opt" data-correct="false">Un @Tag</button>
+            <button class="opt" data-correct="true">Un método anotado con @After</button>
+            <button class="opt" data-correct="false">Un comentario al final del feature</button>
+          </div>
+          <div class="fb" id="fb-1-2"></div>
         </div>
 
         <div class="wrap-btns">
@@ -419,6 +475,34 @@ public void deboVerDashboard() {
             <button class="opt" data-correct="true">Una Question</button>
           </div>
           <div class="fb" id="fb-2-1"></div>
+        </div>
+
+        <h3>Screenplay vs. Page Object: ¿cuándo usar cada uno?</h3>
+        <p>No es que uno sea "el bueno" y otro "el viejo" — resuelven problemas distintos. Esto es lo que de verdad cambia entre los dos:</p>
+        <div class="pillars">
+          <div class="pillar"><span class="tag" style="background:var(--marquee);">PAGE OBJECT</span><h4>Modela una pantalla</h4>
+            <p>Una clase por página, con sus localizadores y acciones. Simple de entender, pero crece mal: si dos flujos comparten pasos, terminas duplicando código entre clases de página.</p>
+            <code>loginPage.enterUser("ana");
+loginPage.enterPass("123");
+loginPage.clickLogin();</code>
+          </div>
+          <div class="pillar"><span class="tag">SCREENPLAY</span><h4>Modela una intención</h4>
+            <p>Una Task describe QUÉ quiere lograr el actor, no en qué pantalla está. Se reutiliza entre features distintos y escala mejor en suites grandes, a cambio de más piezas que aprender al inicio.</p>
+            <code>actor.attemptsTo(
+  Login.withCredentials("ana","123")
+);</code>
+          </div>
+        </div>
+        <div class="direction"><strong>Regla práctica:</strong> si tu suite es pequeña (menos de ~30 escenarios) y el equipo es junior, Page Object es más rápido de arrancar. Si el proyecto va a crecer y varios flujos comparten pasos (login, navegación, checkout), Screenplay se paga solo con el tiempo.</div>
+
+        <div class="quiz" data-quiz="2-2">
+          <p class="q">3. Dos features distintos necesitan "loguearse" como paso previo. ¿Qué enfoque evita duplicar ese código más limpiamente?</p>
+          <div class="opts">
+            <button class="opt" data-correct="false">Copiar el método de login en cada Page Object</button>
+            <button class="opt" data-correct="true">Una Task de Login reutilizable entre ambos features</button>
+            <button class="opt" data-correct="false">Escribir el login manualmente en cada step definition</button>
+          </div>
+          <div class="fb" id="fb-2-2"></div>
         </div>
 
         <div class="wrap-btns">
@@ -489,6 +573,36 @@ public void testLogin() {
           <div class="fb" id="fb-3-1"></div>
         </div>
 
+        <h3>Diagnóstico: por qué falla un test intermitente (flaky)</h3>
+        <p>Esto es lo que más tiempo consume en automatización real, y casi nunca se enseña. Un test "flaky" es el que a veces pasa y a veces falla, sin que cambies nada. Las 4 causas más comunes:</p>
+        <div class="pillars">
+          <div class="pillar"><span class="tag">CAUSA 1</span><h4>Espera insuficiente</h4><p>El elemento aún no cargó cuando el test intenta interactuar con él.</p><code>Solución: WaitUntil, no Thread.sleep</code></div>
+          <div class="pillar"><span class="tag">CAUSA 2</span><h4>Selector frágil</h4><p>Un localizador basado en texto o posición que cambia con cada release.</p><code>Solución: usar data-testid estables</code></div>
+          <div class="pillar"><span class="tag">CAUSA 3</span><h4>Datos compartidos</h4><p>Dos tests usan el mismo usuario/registro y se pisan entre sí al correr en paralelo.</p><code>Solución: datos únicos por test</code></div>
+          <div class="pillar"><span class="tag">CAUSA 4</span><h4>Orden implícito</h4><p>Un test asume que otro corrió antes y dejó cierto estado.</p><code>Solución: cada test se auto-configura</code></div>
+        </div>
+
+        <h3>Integración con CI</h3>
+        <p>Un test que solo corres manualmente en tu máquina no protege al equipo. El último paso es que Serenity corra automáticamente en cada cambio de código, dentro de un pipeline (GitHub Actions, Jenkins, GitLab CI...).</p>
+        <div class="code-block"><span class="cm"># .github/workflows/tests.yml (ejemplo simplificado)</span>
+<span class="kw">jobs:</span>
+  automated-tests:
+    <span class="kw">runs-on:</span> ubuntu-latest
+    <span class="kw">steps:</span>
+      - <span class="kw">run:</span> mvn clean verify
+      - <span class="kw">run:</span> mvn serenity:aggregate <span class="cm"># genera el reporte</span></div>
+        <div class="direction"><strong>Por qué importa:</strong> el reporte de Serenity generado en CI es el que ve todo el equipo — no el que corriste en tu laptop. Eso es lo que realmente vuelve la suite confiable.</div>
+
+        <div class="quiz" data-quiz="3-2">
+          <p class="q">3. Un test pasa solo cuando lo corres solo, pero falla al correr junto a otros. ¿Cuál es la causa más probable?</p>
+          <div class="opts">
+            <button class="opt" data-correct="false">El navegador está desactualizado</button>
+            <button class="opt" data-correct="true">Datos compartidos entre tests que se pisan al correr en paralelo</button>
+            <button class="opt" data-correct="false">Falta un import en el step definition</button>
+          </div>
+          <div class="fb" id="fb-3-2"></div>
+        </div>
+
         <div class="wrap-btns">
           <button class="action secondary" onclick="prevScene()">← Escena anterior</button>
           <button class="action" onclick="nextScene()">Ir al proyecto final →</button>
@@ -509,6 +623,55 @@ public void testLogin() {
       </div>
 
       <div class="page">
+        <h3>Repaso general antes del estreno</h3>
+        <p>Estas preguntas mezclan las 4 escenas anteriores a propósito. Repasar así, en vez de solo una vez por tema, es lo que realmente fija el conocimiento a largo plazo.</p>
+
+        <div class="quiz" data-quiz="final-0">
+          <p class="q">1. Tienes que probar un login con 6 combinaciones distintas de usuario/rol. ¿Qué construcción de Gherkin usas?</p>
+          <div class="opts">
+            <button class="opt" data-correct="false">6 Scenarios separados</button>
+            <button class="opt" data-correct="true">Scenario Outline con Examples</button>
+            <button class="opt" data-correct="false">Un solo Scenario con 6 Then</button>
+          </div>
+          <div class="fb" id="fb-final-0"></div>
+        </div>
+        <div class="quiz" data-quiz="final-1">
+          <p class="q">2. Necesitas correr solo los tests críticos antes de un deploy urgente. ¿Qué usas?</p>
+          <div class="opts">
+            <button class="opt" data-correct="false">Comentar los tests que no quieres correr</button>
+            <button class="opt" data-correct="true">Filtrar por tag, ej. @smoke</button>
+            <button class="opt" data-correct="false">Borrar temporalmente los otros features</button>
+          </div>
+          <div class="fb" id="fb-final-1"></div>
+        </div>
+        <div class="quiz" data-quiz="final-2">
+          <p class="q">3. Dos features comparten el paso de login y quieres evitar duplicar ese código. ¿Qué patrón te conviene?</p>
+          <div class="opts">
+            <button class="opt" data-correct="false">Page Object con el método copiado en cada página</button>
+            <button class="opt" data-correct="true">Screenplay con una Task de Login reutilizable</button>
+            <button class="opt" data-correct="false">Un archivo .feature compartido sin steps</button>
+          </div>
+          <div class="fb" id="fb-final-2"></div>
+        </div>
+        <div class="quiz" data-quiz="final-3">
+          <p class="q">4. Tu test pasa solo, pero falla cuando corre junto a otros en paralelo. ¿Causa más probable?</p>
+          <div class="opts">
+            <button class="opt" data-correct="false">El WebDriver está mal instalado</button>
+            <button class="opt" data-correct="true">Datos compartidos entre tests</button>
+            <button class="opt" data-correct="false">El feature file tiene mal formato</button>
+          </div>
+          <div class="fb" id="fb-final-3"></div>
+        </div>
+        <div class="quiz" data-quiz="final-4">
+          <p class="q">5. ¿Por qué correr los tests en CI (no solo en tu laptop) es lo que vuelve confiable la suite?</p>
+          <div class="opts">
+            <button class="opt" data-correct="false">Porque CI corre los tests más rápido</button>
+            <button class="opt" data-correct="true">Porque genera un reporte compartido en cada cambio, no solo en tu máquina</button>
+            <button class="opt" data-correct="false">Porque CI no necesita esperas</button>
+          </div>
+          <div class="fb" id="fb-final-4"></div>
+        </div>
+
         <h3>El reto</h3>
         <p>Automatiza: <strong>Login → Buscar producto → Agregar al carrito → Checkout</strong></p>
         <div class="pillars">
@@ -540,6 +703,19 @@ public void testLogin() {
 public void usuarioLogueado() {
     actor.attemptsTo(LoginUI.withCredentials(&quot;user&quot;, &quot;pass&quot;));
 }"></textarea>
+        </div>
+
+        <h3>Rúbrica de auto-revisión</h3>
+        <p>Antes de entregar, marca honestamente lo que tu solución realmente cumple. Esto es lo que un revisor humano de verdad te pediría.</p>
+        <div class="drill">
+          <label style="display:flex; gap:0.6rem; align-items:flex-start; margin-bottom:0.7rem; cursor:pointer;"><input type="checkbox" class="rubric-item" data-rubric="r1" style="margin-top:0.3rem;"> <span>Mi Gherkin es legible por alguien no técnico, sin detalles de implementación (sin nombres de botones ni de clases Java).</span></label>
+          <label style="display:flex; gap:0.6rem; align-items:flex-start; margin-bottom:0.7rem; cursor:pointer;"><input type="checkbox" class="rubric-item" data-rubric="r2" style="margin-top:0.3rem;"> <span>Uso al menos una Task reutilizable (Screenplay), no solo llamadas sueltas dentro del step definition.</span></label>
+          <label style="display:flex; gap:0.6rem; align-items:flex-start; margin-bottom:0.7rem; cursor:pointer;"><input type="checkbox" class="rubric-item" data-rubric="r3" style="margin-top:0.3rem;"> <span>No hay ningún Thread.sleep() — toda espera usa WaitUntil o un mecanismo equivalente.</span></label>
+          <label style="display:flex; gap:0.6rem; align-items:flex-start; margin-bottom:0.7rem; cursor:pointer;"><input type="checkbox" class="rubric-item" data-rubric="r4" style="margin-top:0.3rem;"> <span>Cada Then usa una Question + assertion real, no un comentario diciendo "aquí se valida".</span></label>
+          <label style="display:flex; gap:0.6rem; align-items:flex-start; margin-bottom:0; cursor:pointer;"><input type="checkbox" class="rubric-item" data-rubric="r5" style="margin-top:0.3rem;"> <span>Si dos escenarios necesitan el mismo dato de entrada, usé Scenario Outline en vez de duplicar el escenario.</span></label>
+        </div>
+
+        <div class="drill">
           <button class="action" onclick="submitFinal()">Entregar proyecto</button>
           <div class="fb" id="fb-final"></div>
         </div>
@@ -561,14 +737,55 @@ public void usuarioLogueado() {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 const TOTAL_SCENES = 5;
-const TOTAL_QUIZZES = 8;   // 2 per scene x 4 scored scenes
+const TOTAL_QUIZZES = 17;   // 3 per scene x 4 scored scenes + 5 de repaso general
 const TOTAL_EXERCISES = 4;
+const TOTAL_RUBRIC = 5;
+
+const REFERENCE_SOLUTIONS = {
+  gherkin: `Feature: Agregar producto al carrito
+
+  Scenario: Usuario agrega producto al carrito exitosamente
+    Given que el usuario está en la página de productos
+    When selecciona un producto y hace clic en "Agregar al carrito"
+    Then el producto debe aparecer en el carrito
+    And el contador del carrito debe incrementarse en 1`,
+  cucumber: `@Then("debo ver el dashboard principal")
+public void deboVerDashboard() {
+    assertThat(actor.asksFor(Text.of(DASHBOARD_TITLE)))
+        .isEqualTo("Dashboard");
+}`,
+  screenplay: `public class LoginUI implements Task {
+    private final String username, password;
+    public LoginUI(String user, String pass) {
+        this.username = user; this.password = pass;
+    }
+    @Override
+    public <T extends Actor> void performAs(T actor) {
+        actor.attemptsTo(
+            Enter.theValue(username).into(USERNAME_FIELD),
+            Enter.theValue(password).into(PASSWORD_FIELD),
+            Click.on(LOGIN_BUTTON)
+        );
+    }
+}`,
+  serenity: `@Test
+public void testLogin() {
+    actor.attemptsTo(Open.browserOn(LoginPage.class));
+    actor.attemptsTo(WaitUntil.the(LOGIN_FORM, isVisible()));
+    actor.attemptsTo(Enter.theValue("user").into(USERNAME));
+    actor.attemptsTo(Enter.theValue("pass").into(PASSWORD));
+    actor.attemptsTo(WaitUntil.the(LOGIN_BUTTON, isClickable()));
+    actor.attemptsTo(Click.on(LOGIN_BUTTON));
+}`
+};
 
 let state = {
   current: 0,
   completedScenes: [],
   quizzes: {},      // "0-0": true/false
   exercises: {},     // gherkin/cucumber/screenplay/serenity: true
+  attempts: {gherkin:0, cucumber:0, screenplay:0, serenity:0},
+  rubric: {},         // r1..r5: true
   finalDone: false,
   texts: {}
 };
@@ -629,11 +846,22 @@ function applyStateToUI(){
   Object.keys(state.exercises||{}).forEach(name=>{
     if(state.exercises[name]) markBadgesFromExercise(name, false);
   });
+  document.querySelectorAll('.rubric-item').forEach(cb=>{
+    cb.checked = !!(state.rubric||{})[cb.dataset.rubric];
+  });
   if(state.finalDone){
     document.getElementById('completion').style.display = 'block';
   }
   refreshProgress();
 }
+
+document.querySelectorAll('.rubric-item').forEach(cb=>{
+  cb.addEventListener('change', ()=>{
+    state.rubric[cb.dataset.rubric] = cb.checked;
+    refreshProgress();
+    saveState();
+  });
+});
 
 document.querySelectorAll('.quiz').forEach(quiz=>{
   const key = quiz.dataset.quiz;
@@ -682,36 +910,72 @@ function nextScene(){
 }
 function prevScene(){ if(state.current>0) showScene(state.current-1); }
 
+function showReference(fb, exerciseName){
+  const pre = document.createElement('pre');
+  pre.style.cssText = 'margin-top:0.8rem; padding:0.9rem; background:#161620; color:#e5e2f0; font-family:\'Courier Prime\',monospace; font-size:0.82rem; white-space:pre-wrap; border:1px solid var(--rule);';
+  pre.textContent = REFERENCE_SOLUTIONS[exerciseName];
+  const label = document.createElement('div');
+  label.style.cssText = 'font-weight:600; margin-top:0.9rem; color:var(--ink);';
+  label.textContent = 'Ya intentaste 2 veces — aquí tienes una solución de referencia para comparar tu lógica:';
+  fb.appendChild(label);
+  fb.appendChild(pre);
+}
+
+function registerAttempt(name, passed, fb){
+  if(passed){ state.attempts[name]=0; return; }
+  state.attempts[name] = (state.attempts[name]||0) + 1;
+  if(state.attempts[name] >= 2) showReference(fb, name);
+  saveState();
+}
+
 function checkGherkin(){
   const val = document.getElementById('in-gherkin').value.toLowerCase();
   const fb = document.getElementById('fb-gherkin');
-  if(val.includes('given') && val.includes('when') && val.includes('then')){
-    fb.className='fb show ok'; fb.textContent='✓ Tu escenario tiene la estructura correcta: Given-When-Then.';
+  const hasStructure = val.includes('given') && val.includes('when') && val.includes('then');
+  const hasFeature = val.includes('feature') || val.includes('scenario');
+  if(hasStructure && hasFeature){
+    fb.className='fb show ok'; fb.textContent='✓ Tu escenario tiene Feature/Scenario y la estructura Given-When-Then.';
     completeExercise('gherkin');
   }else{
-    fb.className='fb show bad'; fb.textContent='✗ Todo escenario Gherkin necesita Given, When y Then.';
+    fb.className='fb show bad';
+    fb.textContent = !hasFeature
+      ? '✗ Falta encabezar con Feature: y Scenario:.'
+      : '✗ Todo escenario Gherkin necesita Given, When y Then.';
+    registerAttempt('gherkin', false, fb);
   }
   saveText('in-gherkin');
 }
 function checkCucumber(){
   const val = document.getElementById('in-cucumber').value;
   const fb = document.getElementById('fb-cucumber');
-  if(val.includes('@Then') && (val.includes('assertThat') || val.toLowerCase().includes('should'))){
-    fb.className='fb show ok'; fb.textContent='✓ Tu step definition está anotado y valida el resultado.';
+  const hasAnnotation = val.includes('@Then');
+  const hasAssertion = val.includes('assertThat') || /\.should(Be|Have|Contain)/i.test(val) || val.includes('isEqualTo');
+  if(hasAnnotation && hasAssertion){
+    fb.className='fb show ok'; fb.textContent='✓ Tu step definition está anotado y valida el resultado con una assertion real.';
     completeExercise('cucumber');
   }else{
-    fb.className='fb show bad'; fb.textContent='✗ Usa la anotación @Then y valida con assertThat() o should().';
+    fb.className='fb show bad';
+    fb.textContent = !hasAnnotation
+      ? '✗ Falta la anotación @Then sobre el método.'
+      : '✗ Falta una assertion real (assertThat / isEqualTo), no basta con leer el dato.';
+    registerAttempt('cucumber', false, fb);
   }
   saveText('in-cucumber');
 }
 function checkScreenplay(){
   const val = document.getElementById('in-screenplay').value;
   const fb = document.getElementById('fb-screenplay');
-  if(val.includes('performAs') && val.includes('actor.attemptsTo')){
+  const hasMethod = val.includes('performAs');
+  const hasAttempt = val.includes('actor.attemptsTo') || val.includes('.attemptsTo(');
+  if(hasMethod && hasAttempt){
     fb.className='fb show ok'; fb.textContent='✓ Tu Task implementa performAs() y usa actor.attemptsTo().';
     completeExercise('screenplay');
   }else{
-    fb.className='fb show bad'; fb.textContent='✗ Una Task debe implementar performAs() y usar actor.attemptsTo().';
+    fb.className='fb show bad';
+    fb.textContent = !hasMethod
+      ? '✗ Una Task debe implementar el método performAs(T actor).'
+      : '✗ Dentro de performAs(), usa actor.attemptsTo(...) para encadenar las sub-tareas.';
+    registerAttempt('screenplay', false, fb);
   }
   saveText('in-screenplay');
 }
@@ -720,11 +984,13 @@ function checkSerenity(){
   const fb = document.getElementById('fb-serenity');
   if(val.includes('Thread.sleep')){
     fb.className='fb show bad'; fb.textContent='✗ Todavía hay Thread.sleep(). Reemplázalo por WaitUntil.the(elemento, isClickable()).';
+    registerAttempt('serenity', false, fb);
   }else if(val.includes('WaitUntil')){
     fb.className='fb show ok'; fb.textContent='✓ Eliminaste Thread.sleep() y usaste WaitUntil de Serenity.';
     completeExercise('serenity');
   }else{
     fb.className='fb show bad'; fb.textContent='✗ Agrega una espera con WaitUntil.the(elemento, isClickable()).';
+    registerAttempt('serenity', false, fb);
   }
   saveText('in-serenity');
 }
@@ -744,16 +1010,21 @@ function submitFinal(){
   const feature = document.getElementById('in-final-feature').value;
   const code = document.getElementById('in-final-code').value;
   const fb = document.getElementById('fb-final');
-  if(feature.length>50 && code.length>100){
-    fb.className='fb show ok'; fb.textContent='🎉 ¡Proyecto entregado! Desbloqueaste "Automatizador/a".';
+  const rubricChecked = Object.keys(state.rubric).filter(k=>state.rubric[k]).length;
+  const hasContent = feature.length>50 && code.length>100;
+
+  if(hasContent && rubricChecked === TOTAL_RUBRIC){
+    fb.className='fb show ok'; fb.textContent='🎉 ¡Proyecto entregado y rúbrica completa! Desbloqueaste "Automatizador/a".';
     state.finalDone = true;
     if(!state.completedScenes.includes(4)) state.completedScenes.push(4);
     document.getElementById('completion').style.display='block';
     document.getElementById('completion').scrollIntoView({behavior:'smooth'});
     unlockBadge('badge-4');
     refreshProgress();
-  }else{
+  }else if(!hasContent){
     fb.className='fb show bad'; fb.textContent='✗ Tu solución parece incompleta. Añade más detalle al feature y al código.';
+  }else{
+    fb.className='fb show bad'; fb.textContent=`✗ Marca los ${TOTAL_RUBRIC} puntos de la rúbrica antes de entregar (llevas ${rubricChecked}/${TOTAL_RUBRIC}). Son los criterios reales con los que se revisaría tu código.`;
   }
   saveText('in-final-feature'); saveText('in-final-code');
   saveState();
@@ -785,8 +1056,9 @@ function refreshProgress(){
   const quizCount = Object.values(state.quizzes).filter(Boolean).length;
   const exCount = Object.keys(state.exercises).length;
   const sceneCount = state.completedScenes.length;
-  const totalTasks = TOTAL_QUIZZES + TOTAL_EXERCISES + TOTAL_SCENES;
-  const done = quizCount + exCount + sceneCount;
+  const rubricCount = Object.values(state.rubric||{}).filter(Boolean).length;
+  const totalTasks = TOTAL_QUIZZES + TOTAL_EXERCISES + TOTAL_SCENES + TOTAL_RUBRIC;
+  const done = quizCount + exCount + sceneCount + rubricCount;
   const pct = Math.round((done/totalTasks)*100);
 
   document.getElementById('progressBar').style.width = pct+'%';
@@ -810,10 +1082,11 @@ function renderQR(){
 
 async function resetProgress(){
   if(!confirm('¿Reiniciar todo tu avance guardado?')) return;
-  state = { current:0, completedScenes:[], quizzes:{}, exercises:{}, finalDone:false, texts:{} };
+  state = { current:0, completedScenes:[], quizzes:{}, exercises:{}, attempts:{gherkin:0,cucumber:0,screenplay:0,serenity:0}, rubric:{}, finalDone:false, texts:{} };
   document.querySelectorAll('textarea').forEach(t=>t.value='');
   document.querySelectorAll('.opt').forEach(o=>{ o.disabled=false; o.classList.remove('correct','incorrect'); });
-  document.querySelectorAll('.fb').forEach(f=>{ f.classList.remove('show'); f.textContent=''; });
+  document.querySelectorAll('.fb').forEach(f=>{ f.classList.remove('show'); f.textContent=''; f.innerHTML=''; });
+  document.querySelectorAll('.rubric-item').forEach(cb=> cb.checked=false);
   document.querySelectorAll('.badge').forEach(b=>b.classList.remove('unlocked'));
   document.getElementById('completion').style.display='none';
   showScene(0, false);
